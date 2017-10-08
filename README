@@ -1,0 +1,23 @@
+ssbotbuilder: Bot SDK in Javascript
+
+app: example Bot built with ssbotbuilder
+
+weatherBot-Example: An Example Weather Bot built on ssbotbuilder SDK.
+
+SDK Contains the methods to obtain JWT Token from oAuth Server.
+
+Bot Application has to register for Statelistener with Bot SDK. 
+Once Bot Application receives Ready State in StateListener, SDK is in ready State. 
+Due to any error response for Token, Bot SDK will post a callback to change state to NotReady State, in that case Bot 
+has to wait for ready indication.
+
+If Bot tries to send message to BotPlatform while Bot SDK is not in ready State, Message Sending will be failed.
+
+StateListener example in Bot Application
+ var onStateListener = function(state, reason) {
+     if(!state) { // When bot-sdk is not ready, bot application has to maintain this state. 
+       console.log('Cannot send any message all messages should be buffered now ' + reason);
+     } else {
+       console.log("Bot is working correctly");
+     }
+ }
