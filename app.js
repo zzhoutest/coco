@@ -2,12 +2,12 @@ var ssbot = require('./ssbotbuilder.js');
 
 var options = {
   port: 3000,
-  botID: 'K3K_cmffSn6eBh20gRdjqg',
-  accesstoken: 'xIs40Zkf8OfGyn01Dx2RuSTUiSd0aTLHUBtV6rfaz20',
-  botservice: 'botplatform.rcscloudconnect.net',
+  botID: 'otDmWxrJS4aRPYLQNrLLJg',
+  accesstoken: 'su3JwlKUZXlU_ErSrgt1Vc9oDSo9vbt7RpJBNr_sl2g',
+  botservice: 'pue1-maap1elb-apigw-1295337022.us-east-1.elb.amazonaws.com',
   clientconfig: {
-    scheme: 'https',
-    connpoolsize: 5
+    scheme: 'http',
+    connpoolsize: 10
   }
 };
 

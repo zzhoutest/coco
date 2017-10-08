@@ -72,7 +72,7 @@ ssBotBuilder.prototype.createService = function(config, callback) {
       }
     });
   } else {
-  Botwebserver.listen(configuration.port, function() {
+	Botwebserver.listen(configuration.port, function() {
     console.log('** Bot listening on port ' + configuration.port);
     if (callback) {
       callback(null, Botwebserver);
