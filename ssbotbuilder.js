@@ -18,18 +18,17 @@ var ssBotBuilder = function() {
 
 /*Interface API to create WebServer*/
 ssBotBuilder.prototype.createService = function(config, callback) {
+  console.log('---configuration---');
   configuration = config;
-  if(config.hasOwnProperty("serverconfig")) {
-    configuration.serverconfig = config.serverconfig
+
+  // process client config, and this is used for bot to communicate to bot platform
+  if(config.hasOwnProperty("clientconfig")) {    
+    configuration.clientconfig = config.clientconfig;
   } else {
-    configuration.serverconfig = {};
-    configuration.serverconfig.scheme = 'http';
+    configuration.clientconfig = {};    
   }
-  if(config.hasOwnProperty("clientconfig")) {
-    console.log(config.clientconfig);
-    configuration.clientconfig = config.clientconfig
-  } else {
-    configuration.clientconfig = {};
+
+  if (!configuration.clientconfig.scheme) {
     configuration.clientconfig.scheme = 'http';
   }
 
@@ -37,11 +36,41 @@ ssBotBuilder.prototype.createService = function(config, callback) {
     BotServiceAgent = new require('http').Agent({ keepAlive: true,maxSockets: configuration.clientconfig.connpoolsize });
   }
 
+  console.log('---client config---');
+  console.log(configuration.clientconfig);
+
+  // process server config, and this is used of bot platform to communicate to bot
+  if(config.hasOwnProperty("serverconfig")) {    
+    configuration.serverconfig = config.serverconfig;     
+  } else {
+    configuration.serverconfig = {};            
+  }
+  
+  if (!configuration.serverconfig.scheme) {
+    configuration.clientconfig.scheme = 'http';
+  }
+
+  if (!configuration.serverconfig.port) {
+    if (configuration.clientconfig.scheme == 'http') {
+      configuration.clientconfig.port = 3000;
+    } else {
+      configuration.clientconfig.port = 443;
+    }
+  }
+
+  if (!configuration.serverconfig.webhook) {
+    configuration.serverconfig.webhook = '/bot/message'; 
+  }
+
+  console.log('---server config---');
+  console.log(configuration.serverconfig);
+
   Botwebserver = express();
   Botwebserver.use(bodyParser.json());
   Botwebserver.use(bodyParser.urlencoded({
     extended: true
   }));
+
   if (configuration.serverconfig.scheme == 'https') {
     //Server setup https
     const https = require('https');
@@ -54,26 +83,26 @@ ssBotBuilder.prototype.createService = function(config, callback) {
       key: fs.readFileSync(configuration.serverconfig.key),
       cert: fs.readFileSync(configuration.serverconfig.cert)
     };
-    https.createServer(options, Botwebserver).listen(configuration.port, function() {
-      console.log('** Bot listening on port ' + configuration.port);
+    https.createServer(options, Botwebserver).listen(configuration.serverconfig.port, function() {
+      console.log('Bot is listening on port: ' + configuration.serverconfig.port);
       if (callback) {
         callback(null, Botwebserver);
       }
     }).on('error',
-    function(err) {
-      if (err.errno === 'EADDRINUSE') {
-        console.log('port is already in use');
-        process.exit(1);
-      } else if (err.errno === 'EACCES') {
-        console.log('requires elevated privileges');
-        process.exit(1);
-      } else {
-        console.log(err);
-      }
-    });
+      function(err) {
+        if (err.errno === 'EADDRINUSE') {
+          console.log('port is already in use');
+          process.exit(1);
+        } else if (err.errno === 'EACCES') {
+          console.log('requires elevated privileges');
+          process.exit(1);
+        } else {
+          console.log(err);
+        }
+      });
   } else {
-	Botwebserver.listen(configuration.port, function() {
-    console.log('** Bot listening on port ' + configuration.port);
+	  Botwebserver.listen(configuration.serverconfig.port, function() {
+    console.log('Bot is listening on port: ' + configuration.serverconfig.port);
     if (callback) {
       callback(null, Botwebserver);
     }
@@ -90,10 +119,10 @@ ssBotBuilder.prototype.createService = function(config, callback) {
       }
     });
   }
+
   configureServiceRoute(Botwebserver);
   authtoken = require('./authtoken')(configuration.botID, configuration.accesstoken, configuration.botservice, configuration.clientconfig, tokenManager);
   authtoken.fetchAccessToken();
-
 }
 
 /*Interface API to register Callback Listener in App for receiving messages*/
@@ -514,33 +543,18 @@ var fillMessageContent = function(msg, resp) {
 /*Private API to routeMessages*/
 var configureServiceRoute = function(webserver) {
   // Handle CORS
-  webserver.options('/bot/message', cors());
+  webserver.options(configuration.serverconfig.webhook, cors());
 
-  // Handle bot publish request
-  webserver.get('/bot/message', function(req, res) {
-    console.log('handle publish bot message');
-    var params = new Array(configuration.TOKEN, req.query.timestamp, req.query.nonce);
-    params.sort();
-    var concatParams = params.join('');
-    //  console.log("sign:" + req.query.signature);
-    var hash = require('crypto').createHash('sha1').update(concatParams).digest('base64');
-    if (hash.localeCompare(hash) === 0) {
-      console.log('Bot Publish Success');
-      res.writeHead(200, {
-        "Content-Type": "text/plain"
-      });
-      res.end(req.query.echo);
-    } else {
-      console.log('Bot Publish Failed');
-      res.writeHead(401, {
-        "Content-Type": "text/plain"
-      });
-      res.end("Unauthorized request");
-    }
-  });
-  webserver.post('/bot/message', cors(), function(req, res) {
+  // logic to handle webhook POST
+  webserver.post(configuration.serverconfig.webhook, cors(), function(req, res) {
     var obj = req.body;
     console.log('GOT A POST MESSAGE :  ' + JSON.stringify(obj));
+
+    // send everything to webhook
+    if (obj) {
+      listeners['webhook'] && listeners['webhook'](obj);
+    }
+
     if (obj && obj.RCSMessage) {
       var message = {};
       message.messageContact = obj.messageContact;

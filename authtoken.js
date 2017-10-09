@@ -21,7 +21,7 @@ var attemptrequest = function(opts, cb) {
 }
 
 function authtoken(botid, botsecret, botservice, authclientconfig, tokenmngr) {
-  console.log('clientconfig' + authclientconfig)
+  console.log('clientconfig:' + authclientconfig)
   var self;
   var scheme = authclientconfig.scheme;
   var ca_path = authclientconfig.ca;

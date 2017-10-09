@@ -1,13 +1,17 @@
 var ssbot = require('./ssbotbuilder.js');
 
-var options = {
-  port: 3000,
+var options = {  
   botID: 'otDmWxrJS4aRPYLQNrLLJg',
   accesstoken: 'su3JwlKUZXlU_ErSrgt1Vc9oDSo9vbt7RpJBNr_sl2g',
   botservice: 'pue1-maap1elb-apigw-1295337022.us-east-1.elb.amazonaws.com',
   clientconfig: {
     scheme: 'http',
     connpoolsize: 10
+  },
+  serverconfig: {
+    scheme: 'http',
+    port: 3000,
+    webhook: '/callback'
   }
 };
 
@@ -20,8 +24,13 @@ ssbot.createService(options, function (err, webserver) {
     ssbot.listen('file', onFileMessageListener);
     ssbot.listen('audioMessage', onAudioMessageListener);
     ssbot.listen('sharedData', onSharedDataListener);
+    ssbot.listen('webhook', onWebhookListener);
   }
 });
+
+var onWebhookListener = function (message) {
+  console.log("Webhook callback received : " + JSON.stringify(message));
+}
 
 var onStateListener = function (state, reason) {
   if (!state) {
