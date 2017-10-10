@@ -134,38 +134,74 @@ ssBotBuilder.prototype.listen = function(event, listener) {
 }
 
 /* Interface API to upload file to MAAP cloud storage
-  fileObject :{"fileType":"image/jpg" ,"filePath": "./ft.jpg"}
+  bot can upload local file or file url
 */
-ssBotBuilder.prototype.uploadFile = function(src, fileObject, cb) {
+ssBotBuilder.prototype.upload = function(fileObject, cb) {
+  console.log('---uploadFile---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
-    cb && cb("Bot Server is not in ready State")
+    cb && cb("Bot Server is not in ready State");
     return;
   }
+  
   var message = {};
-  console.log('FileType: ' + fileObject.fileType + ' filePath : ' + fileObject.filePath);
-  if (fileObject.fileType == '' || fileObject.filePath == '') {
-    return cb && cb("Empty params");
+  console.log('fileType: ' + fileObject.fileType + ' until: ' + fileObject.until + ' fileLocalPath: ' + fileObject.fileLocalPath + ' fileUrl: ' + fileObject.fileUrl);
+  
+  if (!fileObject.fileType || (!fileObject.fileLocalPath && !fileObject.fileUrl)) {
+    cb && cb("missing mandatory values");
+    return;
   }
-  var uploadUrl = configuration.clientconfig.scheme + '://' + configuration.botservice + '/bot/v1/' + configuration.botID + '/files';
+
+  if (fileObject.fileLocalPath && fileObject.fileUrl) {
+    cb && cb("only either fileLocalPath or fileUrl allowed and cannot be both");
+    return;
+  }
+
+  // if bot does not provide "until", set it as 30 days
+  if (!fileObject.until) {
+    var ms = new Date().getTime() + (86400000 * 30);
+    fileObject.until = new Date(ms);
+  }
+
+  var uploadUrl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/files';
   console.log("request url: " + uploadUrl);
 
-  var file = require('fs').createReadStream(fileObject.filePath);
-  var clientOptions = {
-    url: uploadUrl,
-    method: "POST",
-    formData: {
-      "fileType": fileObject.fileType,
-      "file": file
-    },
-    headers: {
-      "Authorization": "Bearer " + authtoken.getAccessToken(),
-      "Content-Type": "application/x-www-form-urlencoded"
-    }
-  };
+  var clientOptions;
+  if (fileObject.fileLocalPath) {
+    var file = require('fs').createReadStream(fileObject.fileLocalPath);
+    clientOptions = {
+      url: uploadUrl,
+      method: "POST",
+      formData: {
+        "fileType": fileObject.fileType,
+        "until": fileObject.until,
+        "fileContent": file
+      },
+      headers: {
+        "Authorization": "Bearer " + authtoken.getAccessToken(),
+        "Content-Type": "application/form-data"
+      }
+    };
+  } else {
+    clientOptions = {
+      url: uploadUrl,
+      method: "POST",
+      formData: {
+        "fileType": fileObject.fileType,
+        "until": fileObject.until,
+        "fileUrl": fileObject.fileUrl
+      },
+      headers: {
+        "Authorization": "Bearer " + authtoken.getAccessToken(),
+        "Content-Type": "application/form-data"
+      }
+    };
+  }
+
   if(BotServiceAgent){
     clientOptions.agent = BotServiceAgent;
   }
+
   if (configuration.clientconfig.scheme == 'https' && configuration.clientconfig.ca != null) {
     clientOptions.agentOptions = {};
     clientOptions.agentOptions.ca = require('fs').readFileSync(configuration.clientconfig.ca);
@@ -173,372 +209,167 @@ ssBotBuilder.prototype.uploadFile = function(src, fileObject, cb) {
   attemptrequest(clientOptions, cb);
 }
 
-/* Interface API to send File to User
-  fileObject :{"thumbnailFileName":"thumbnail.jpg" ,"thumbnailUrl": "url", "thumbnailMIMEType": "image/jpg", "thumbnailFileSize: 12345,
-               "fileName":"file.jpg" ,"fileUrl": "url", "fileMIMEType": "image/jpg", "fileSize: 12345}
-*/
-ssBotBuilder.prototype.sendFile = function (src, fileObject, cb) {
-  if (fileObject.fileUrl == '') {
-    return cb && cb("File url not provided");
-  }
-  var message = {
-    "RCSMessage" : { }
-  };
-  message.chatId = src.chatId;
-  message.messageContact = src.messageContact;
-  message.RCSMessage.fileMessage = fileObject;
-  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + '/bot/v1/' + configuration.botID + '/messages';
-  console.log('SENDING message with body' + JSON.stringify(message));
-  send(message, requesturl, "POST", cb);
-};
 
-/*Interface API to send Message in existing Chat*/
-ssBotBuilder.prototype.reply = function(src, resp, cb) {
+/*Interface API to send Message in existing Chat
+  the msg should be wrapped in a "RCSMessage" object
+  */
+ssBotBuilder.prototype.reply = function(src, msg, cb) {
+  console.log('---reply---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
-    cb && cb("Bot Server is not in ready State")
+    cb && cb("Bot Server is not in ready State");
     return ;
   }
-  resp.messageContact = src.messageContact;
-  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + '/bot/v1/' + configuration.botID + '/messages';
-  console.log('SENDING message with body' + JSON.stringify(resp));
-  send(resp, requesturl, "POST", cb);
+  msg.messageContact = src.messageContact;
+  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages';
+  console.log('SENDING message with body' + JSON.stringify(msg));
+  send(msg, requesturl, "POST", cb);
 };
 
 /*Interface API to send Unsolicited Message  to User*/
-ssBotBuilder.prototype.say = function(destUser, appmsg, cb) {
+ssBotBuilder.prototype.say = function(dest, msg, cb) {
+  console.log('---say---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
-    cb && cb("Bot Server is not in ready State")
+    cb && cb("Bot Server is not in ready State");
     return ;
   }
-  appmsg.messageContact = {};
-  appmsg.messageContact.userContact = destUser.userContact;
-  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + '/bot/v1/' + configuration.botID + '/messages';
-  console.log('SENDING message with body' + JSON.stringify(appmsg));
-  send(appmsg, requesturl, "POST", cb);
+  msg.messageContact = {};
+  msg.messageContact = dest;
+  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages';
+  console.log('SENDING message with body' + JSON.stringify(msg));
+  send(msg, requesturl, "POST", cb);
 };
 
 /*Interface API to send typing indication*/
-ssBotBuilder.prototype.typing = function(src, value, cb) {
-  console.log('TYPING');
+ssBotBuilder.prototype.typing = function(dest, value, cb) {
+  console.log('---typing---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
-    cb && cb("Bot Server is not in ready State")
+    cb && cb("Bot Server is not in ready State");
     return ;
   }
   var message = {
     "RCSMessage" : {
-      "isTyping": value,
+      "isTyping": value
     }
   };
-  message.messageContact = src.messageContact;
-  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + '/bot/v1/' + configuration.botID + '/messages';
+  message.messageContact = dest;
+  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages';
   console.log('SENDING message with body' + JSON.stringify(message));
   send(message, requesturl, "POST", cb);
 };
 
 /*Interface API to send read report*/
-ssBotBuilder.prototype.readReport = function (src, cb) {
-  console.log('Sending Read Report');
+ssBotBuilder.prototype.read = function (msgId, cb) {
+  console.log('---read---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
-    cb && cb("Bot Server is not in ready State")
+    cb && cb("Bot Server is not in ready State");
     return;
   }
   var message = {
-    "status": "Displayed"
-  }
-  requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + '/bot/v1/' + configuration.botID + '/messages/' +
-    src.RCSMessage.msgId + '/status';
+    "RCSMessage" : {
+      "status": "displayed"
+    }
+  };  
+  requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
+    msgId + '/status';
   console.log("request url is " + requesturl + " , message is: " + JSON.stringify(message));
   send(message, requesturl, "PUT", cb);
 };
 
-var fillSuggestions = function(msg) {
-  var suggestions = [];
-  if (msg.hasOwnProperty("replies")) {
-    msg.replies.forEach(function(element) {
-      var suggestion = {};
-      suggestion.reply = {
-        "displayText": element.displayText
-      };
-      if (element.hasOwnProperty("postback")) {
-        suggestion.reply.postback = element.postback;
-      }
-      suggestions.push(suggestion);
-    })
+/*Interface API to send revoke*/
+ssBotBuilder.prototype.revoke = function (msgId, cb) {
+  console.log('---revoke---');
+  if (!tokenState) {
+    console.log("Bot Server is not in ready State");
+    cb && cb("Bot Server is not in ready State");
+    return;
   }
-  if (msg.hasOwnProperty("actions")) {
-    msg.actions.forEach(function(action) {
-      var suggestion = {};
-      if (action.type == "url") {
-        suggestion.action = {
-          "urlAction": {
-              "openUrl": {
-                "url": action.url
-              }
-          }
-        };
-      } else if (action.type == "dialer") {
-        if (action.dialerAction == "audio") {
-          suggestion.action = {
-            "dialerAction": {
-              "dialPhoneNumber": {
-                "phoneNumber": action.phoneNumber
-              }
-            }
-          };
-        } else if (action.dialerAction == "enriched") {
-          suggestion.action = {
-            "dialerAction": {
-              "dialEnrichedCall": {
-                "phoneNumber": action.phoneNumber,
-                "subject": action.subject,
-                "fallbackUrl": action.fallbackUrl
-              }
-            }
-          };
-        } else if (action.dialerAction == "video") {
-          suggestion.action = {
-            "dialerAction": {
-              "dialVideoCall": {
-                "phoneNumber": action.phoneNumber,
-                "fallbackUrl": action.fallbackUrl
-              }
-            }
-          };
-        }
-      } else if (action.type == "map") {
-        if (action.mapAction == "show") {
-          suggestion.action = {};
-          suggestion.action.mapAction = {
-            "showLocation": {
-              "location": {
-                "latitude": action.latitude,
-                "longitude": action.longitude,
-                "label": action.label
-              },
-              "fallbackUrl": action.fallbackUrl
-            }
-          };
-        } else if (action.mapAction == "query") {
-          suggestion.action = {};
-          suggestion.action.mapAction = {
-            "showLocation": {
-              "location": {
-                "query": action.query
-              },
-              "fallbackUrl": action.fallbackUrl
-            }
-          };
-        } else if (action.mapAction == "push") {
-          suggestion.action = {};
-          suggestion.action.mapAction = {
-            "requestLocationPush": {
-              "title": action.title,
-            }
-          };
-        }
-      } else if (action.type == "calendar") {
-        suggestion.action = {};
-        suggestion.action.calendarAction = {
-          "createCalendarEvent": {
-            "title": action.title,
-            "startTime": action.startTime,
-            "endTime": action.endTime,
-            "description": action.description,
-            "fallbackUrl": action.fallbackUrl
-          }
-        };
-      } else if (action.type == "compose") {
-        if (action.composeAction == "message") {
-          suggestion.action = {};
-          suggestion.action.composeAction = {
-            "composeTextMessage": {
-              "title": action.title,
-              "phoneNumber": action.phoneNumber,
-              "text" : action.text
-            }
-          };
-        } else if (action.composeAction == "recording") {
-          suggestion.action = {};
-          suggestion.action.composeAction = {
-            "composeRecordingMessage": {
-              "title": action.title,
-              "phoneNumber": action.phoneNumber,
-              "type" : action.recordingType
-            }
-          };
-        }
-      } else if (action.type == "device") {
-        suggestion.action = {};
-        suggestion.action.deviceAction = {
-          "requestDeviceSpecifics": {
-            "title": action.title
-          }
-        };
-      } else if (action.type == "settings") {
-        if (action.settingsAction == "disableAnonymize") {
-          suggestion.action = {};
-          suggestion.action.settingsAction = {
-            "disableAnonymization": {
-              title: action.title
-            }
-          };
-        } else if (action.settingsAction == "enableNotifications") {
-          suggestion.action = {};
-          suggestion.action.settingsAction = {
-            "enableDisplayedNotifications": {
-              title: action.title
-            }
-          };
-        }
-      }
-      suggestion.action.displayText = action.displayText;
-      if (action.hasOwnProperty("postback")) {
-          suggestion.action.postback = action.postback;
-        }
-      //console.log("suggestion : " + JSON.stringify(suggestion));
-      suggestions.push(suggestion)
-    })
-  }
-  return suggestions;
-}
+  var message = {
+    "RCSMessage" : {
+      "status": "canceled",
+    }
+  };  
+  requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
+    msgId + '/status';
+  console.log("request url is " + requesturl + " , message is: " + JSON.stringify(message));
+  send(message, requesturl, "PUT", cb);
+};
 
-var fillRichCardContent = function(msg) {
-  var response = {};
-  var message = {};
-  var layout = {};
-  var content = {};
-  var media = {};
-  message.generalPurposeCard = {};
-  layout.cardOrientation = msg.layout.cardOrientation.toUpperCase();
-  if (layout.cardOrientation == "HORIZONTAL") {
-    layout.imageAlignment = msg.layout.imageAlignment.toUpperCase();
+/*Interface API to get message status*/
+ssBotBuilder.prototype.msgstatus = function (msgId, cb) {
+  console.log('---get msg status---');
+  if (!tokenState) {
+    console.log("Bot Server is not in ready State");
+    cb && cb("Bot Server is not in ready State");
+    return;
   }
-  message.generalPurposeCard.layout = layout;
-  message.generalPurposeCard.content = content;
-  //Fill Title
-  if (msg.content.hasOwnProperty("title")) {
-    content.title = msg.content.title;
-  }
-  //Fill Description
-  if (msg.content.hasOwnProperty("description")) {
-    content.description = msg.content.description;
-  }
-  //Fill Media
-  if (msg.content.hasOwnProperty("media")) {
-    //validate the mandatory params
-    if (!(msg.content.media.hasOwnProperty("mediaUrl")) &&
-      !(msg.content.media.hasOwnProperty("mediaContenttype")) &&
-      !(msg.content.media.hasOwnProperty("mediaFileSize")) &&
-      !(msg.content.media.hasOwnProperty("height"))) {
-      console.log("template is not compliant")
-      return;
-    }
-    if (msg.content.hasOwnProperty("thumbnailUrl") &&
-      !(msg.content.media.hasOwnProperty("thumbnailContentType")) &&
-      !(msg.content.media.hasOwnProperty("thumbnailFileSize"))) {
-      console.log("thubnail information is not provided")
-      return;
-    }
-    media = msg.content.media;
-    content.media = media;
-    //console.log(JSON.stringify(message));
-  }
-  //0-* no. of suggested replies.
-  var suggestions = fillSuggestions(msg.content);
+    
+  requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
+    msgId + '/status';
+  console.log("request url is " + requesturl);
+  send(null, requesturl, "GET", cb);
+};
 
-  if (suggestions.length != 0) {
-    message.generalPurposeCard.content.suggestions = suggestions;
+/*Interface API to get uploaded file information*/
+ssBotBuilder.prototype.fileinfo = function (fileId, cb) {
+  console.log('---get file information---');
+  if (!tokenState) {
+    console.log("Bot Server is not in ready State");
+    cb && cb("Bot Server is not in ready State");
+    return;
   }
-  response.message = message;
-  return response;
-}
-var fillRichCardCarouselContent = function(msg) {
-  var response = {};
-  var message = {};
-  var contents = [];
-  message.generalPurposeCardCarousel = {};
-  message.generalPurposeCardCarousel.layout = {
-    "cardWidth": msg.layout.width
-  }
-  message.generalPurposeCardCarousel.content = contents;
-  msg.content.forEach(function(elem) {
-    var cardContent = {};
-    //Fill Title
-    if (elem.hasOwnProperty("title")) {
-      cardContent.title = elem.title;
-    }
-    //Fill Description
-    if (elem.hasOwnProperty("description")) {
-      cardContent.description = elem.description;
-    }
-    //Fill Media
-    if (elem.hasOwnProperty("media")) {
-      //validate the mandatory params
-      if (!(elem.media.hasOwnProperty("mediaUrl")) &&
-        !(elem.media.hasOwnProperty("mediaContenttype")) &&
-        !(elem.media.hasOwnProperty("mediaFileSize")) &&
-        !(elem.media.hasOwnProperty("height"))) {
-        console.log("template is not compliant")
-        return;
-      }
-      if (elem.media.hasOwnProperty("thumbnailUrl") &&
-        !(elem.media.hasOwnProperty("thumbnailContentType")) &&
-        !(elem.media.hasOwnProperty("thumbnailFileSize"))) {
-        console.log("thubnail information is not provided")
-        return;
-      }
-      cardContent.media = elem.media;
-    }
-    //Fill Selected Reply
-    if (elem.hasOwnProperty("selectedreply")) {
-      cardContent.cardSelectedReply = {
-        "reply": elem.selectedreply
-      }
-    }
-    //0-* no. of suggested replies.
-    var suggestions = fillSuggestions(elem);
-    if (suggestions.length != 0) {
-      cardContent.suggestions = suggestions;
-    }
-    contents.push(cardContent);
-  })
-  response.message = message;
-  return response;
-}
+    
+  requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/files/' +
+    fileId;
+  console.log("request url is " + requesturl);
+  send(null, requesturl, "GET", cb);
+};
 
-/*Private API to fill messsage Content*/
-var fillMessageContent = function(msg, resp) {
-  console.log(JSON.stringify(resp));
-  if (typeof resp == 'string') {
-    msg.contentType = 'text/plain';
-    msg.text = resp;
-  } else if(resp.type == 'botmessage'){
-    msg.contentType = 'application/vnd.gsma.botmessage.v1.0+json';
-    if (resp.carousel == true) { //carousel format
-      msg.text = fillRichCardCarouselContent(resp);
-    } else {
-      msg.text = fillRichCardContent(resp);
-    }
-  } else if(resp.type == 'botsuggestion'){
-    msg.suggestions = fillSuggestions(resp);
-    msg.persistent = resp.persistent;
-    if (resp.text) {
-      msg.contentType = 'text/plain';
-      msg.text = resp.text;
-    } else if (resp.richCard) {
-      msg.contentType = 'application/vnd.gsma.botmessage.v1.0+json';
-      if (resp.richCard.carousel == true) { //carousel format
-        msg.text = fillRichCardCarouselContent(resp.richCard);
-      } else {
-        msg.text = fillRichCardContent(resp.richCard);
-      }
-    }
+/*Interface API to delete uploaded file*/
+ssBotBuilder.prototype.fileinfo = function (fileId, cb) {
+  console.log('---delete file---');
+  if (!tokenState) {
+    console.log("Bot Server is not in ready State");
+    cb && cb("Bot Server is not in ready State");
+    return;
   }
-}
+    
+  requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/files/' +
+    fileId;
+  console.log("request url is " + requesturl);
+  send(null, requesturl, "DELETE", cb);
+};
+
+/*Interface API to query remote contact capability*/
+ssBotBuilder.prototype.capability = function (userContact, chatId, cb) {
+  console.log('---query capability---');
+  if (!tokenState) {
+    console.log("Bot Server is not in ready State");
+    cb && cb("Bot Server is not in ready State");
+    return;
+  }
+  if (!userContact && !chatId) {
+    console.log("no contact");
+    cb && cb("no contact");
+    return;
+  }
+  if (userContact && chatId) {
+    console.log("only one contact allowed");
+    cb && cb("only one contact allowed");
+    return;
+  }
+  
+  if (userContact) {
+    requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '?userContact=' + userContact;
+  } else {
+    requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '?chatId=' + chatId;
+  }
+  console.log("request url is " + requesturl);
+  send(null, requesturl, "GET", cb);
+};
 
 /*Private API to routeMessages*/
 var configureServiceRoute = function(webserver) {
@@ -552,50 +383,41 @@ var configureServiceRoute = function(webserver) {
 
     // send everything to webhook
     if (obj) {
+      set_event_type(obj);
       listeners['webhook'] && listeners['webhook'](obj);
-    }
-
-    if (obj && obj.RCSMessage) {
-      var message = {};
-      message.messageContact = obj.messageContact;
-      message.RCSMessage = obj.RCSMessage;
-
-      if (message.RCSMessage.textMessage) {
-        message.text = message.RCSMessage.textMessage;
-        if (!(match_regexp(message, 'message'))) {
-          if(listeners['message']) {
-            listeners['message'](message);
-          } else {
-            console.log('listener not defined');
-          }
-        }
-      } else if (message.RCSMessage.suggestedResponse) {
-        var suggestionResponse = message.RCSMessage.suggestedResponse.response;
-        if (suggestionResponse.hasOwnProperty('reply')) {
-          message.text = suggestionResponse.reply.displayText;
-        } else if (suggestionResponse.hasOwnProperty('action')) {
-          message.text = suggestionResponse.action.displayText;
-        }
-        if (!(match_regexp(message, 'displayText'))) {
-          listeners['message'] && listeners['message'](message);
-        }
-      } else if (obj.RCSMessage.status) {
-        listeners['disposition'] && listeners['disposition'](message);
-      } else if (obj.RCSMessage.geolocationPushMessage) {
-        listeners['location'] && listeners['location'](message);
-      } else if (obj.RCSMessage.fileMessage) {
-        listeners['file'] && listeners['file'](message);
-      } else if (obj.RCSMessage.audioMessage) {
-        listeners['audioMessage'] && listeners['audioMessage'](message);
-      } else if (obj.RCSMessage.sharedData) {
-        listeners['sharedData'] && listeners['sharedData'](message);
-      }
-    } else {
-      console.log('Got an empty message from Samsung Bot Service');
     }
     res.send('ok');
   });
 }
+
+/*Private API to set event type*/
+set_event_type = function(message) {
+  if (message && !message.event) {
+    if (message.RCSMessage) {
+      if (message.RCSMessage.textMessage || message.RCSMessage.fileMessage || message.RCSMessage.audioMessage || message.RCSMessage.geolocationPushMessage) {
+        message.event = "message";
+      } else if (message.RCSMessage.suggestedResponse || message.RCSMessage.sharedData) {
+        message.event = "response";
+        if (message.RCSMessage.suggestedResponse && message.RCSMessage.suggestedResponse.response.reply && message.RCSMessage.suggestedResponse.response.reply.postback && message.RCSMessage.suggestedResponse.response.reply.postback.data == "new_bot_user_initiation") {
+          message.event = "newUser";
+        }
+      } else if (message.RCSMessage.isTyping) {
+        message.event = "isTyping";
+      } else if (message.RCSMessage.status) {
+        message.event = "messageStatus";
+      } else {
+        message.event = "unknown";
+      }
+    } else if (message.file) {
+      message.event = "fileStatus";
+    } else if (message.messageContact && message.messageContact.userContact && message.messageContact.chatId) {
+      message.event = "alias";
+    } else {
+      message.event = "unknown";
+    }
+  }
+}
+
 /*Private API to store Regexp Objects*/
 store_regexp = function(tests, regarr) {
   for (var t = 0; t < tests.length; t++) {
@@ -672,15 +494,27 @@ var attemptrequest = function(opts, cb) {
 
 /*Private API to send Messages to Bot Service*/
 var send = function(msg, requesturl, method, cb) {
-  var clientOptions = {
-    url: requesturl,
-    method: method,
-    headers: {
-      'Content-type': 'application/json',
-      'Authorization': ('Bearer ' + authtoken.getAccessToken())
-    },
-    json: msg
-  };
+  var clientOptions;
+  
+  if (msg) {
+    clientOptions = {
+      url: requesturl,
+      method: method,
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': ('Bearer ' + authtoken.getAccessToken())
+      },
+      json: msg
+    };
+  } else {
+    clientOptions = {
+      url: requesturl,
+      method: method,
+      headers: {
+        'Authorization': ('Bearer ' + authtoken.getAccessToken())
+      }
+    };
+  }
   if(BotServiceAgent){
     clientOptions.agent = BotServiceAgent;
   }
@@ -694,7 +528,7 @@ var send = function(msg, requesturl, method, cb) {
 
 /*Interface API to read Messages for Specific Keywords of type 'message'(plain text message)
  and 'displayText'(displayText from suggested reply/action)*/
-ssBotBuilder.prototype.read = function(keywords, event, cb) {
+ssBotBuilder.prototype.handle = function(keywords, event, cb) {
   if (!cb) {
     console.log('Callback is null');
     process.exit(1);

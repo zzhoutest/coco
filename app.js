@@ -4,6 +4,7 @@ var options = {
   botID: 'otDmWxrJS4aRPYLQNrLLJg',
   accesstoken: 'su3JwlKUZXlU_ErSrgt1Vc9oDSo9vbt7RpJBNr_sl2g',
   botservice: 'pue1-maap1elb-apigw-1295337022.us-east-1.elb.amazonaws.com',
+  apipath: '/bot/v1/',
   clientconfig: {
     scheme: 'http',
     connpoolsize: 10
@@ -29,7 +30,43 @@ ssbot.createService(options, function (err, webserver) {
 });
 
 var onWebhookListener = function (message) {
-  console.log("Webhook callback received : " + JSON.stringify(message));
+  console.log("+++webhook callback received+++" + JSON.stringify(message));
+  console.log(JSON.stringify(message));
+  
+  if (!message) {
+    console.log("!!!empty message!!!");
+    return;
+  }
+
+  if (message.event == "newUser") {
+
+  } else if (message.event == "message") {
+      ssbot.read(message.RCSMessage.msgId, onResponse);
+      ssbot.typing(message.messageContact, "active", onResponse);
+      var reply = {
+        "RCSMessage": {
+          "textMessage": "hello world! I am coco!"
+        },
+        "messageContact": {
+          "userContact": "+14251234567"
+        }
+      };
+      ssbot.reply(message, reply, onResponse);
+  }
+}
+
+
+var onResponse = function (err, res, body) {
+  if (err) {
+    console.log("err:"+err.message);
+  }
+  if (res) {
+    console.log("statusCode:"+res.statusCode);
+    console.log("statusMessage:"+res.statusMessage);
+  }
+  if (body) {
+    console.log("body:"+JSON.stringify(body));
+  }
 }
 
 var onStateListener = function (state, reason) {
@@ -540,13 +577,13 @@ var handleSendFile = function (message) {
   })
 }
 
-ssbot.read(['richcard'], 'message', handleRichCard);
-ssbot.read(['cardcarousel'], 'message', handleCarousel);
-ssbot.read(['chiplistmessage'], 'message', handleChiplistMessage);
-ssbot.read(['chiplistcard'], 'message', handleChiplistRichcard);
-ssbot.read(['chiplistcarousel'], 'message', handleChiplistCarousel);
-ssbot.read(['file'], 'message', handleSendFile);
-ssbot.read(['yes'], 'displayText', handleYesSuggestedDisplayText);
+ssbot.handle(['richcard'], 'message', handleRichCard);
+ssbot.handle(['cardcarousel'], 'message', handleCarousel);
+ssbot.handle(['chiplistmessage'], 'message', handleChiplistMessage);
+ssbot.handle(['chiplistcard'], 'message', handleChiplistRichcard);
+ssbot.handle(['chiplistcarousel'], 'message', handleChiplistCarousel);
+ssbot.handle(['file'], 'message', handleSendFile);
+ssbot.handle(['yes'], 'displayText', handleYesSuggestedDisplayText);
 
 var OnUserMsg = function (message) {
   console.log("User message received \"" + JSON.stringify(message.RCSMessage));
