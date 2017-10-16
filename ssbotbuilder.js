@@ -47,14 +47,14 @@ ssBotBuilder.prototype.createService = function(config, callback) {
   }
   
   if (!configuration.serverconfig.scheme) {
-    configuration.clientconfig.scheme = 'http';
+    configuration.serverconfig.scheme = 'http';
   }
 
   if (!configuration.serverconfig.port) {
-    if (configuration.clientconfig.scheme == 'http') {
-      configuration.clientconfig.port = 3000;
+    if (configuration.serverconfig.scheme == 'http') {
+      configuration.serverconfig.port = 3000;
     } else {
-      configuration.clientconfig.port = 443;
+      configuration.serverconfig.port = 443;
     }
   }
 
@@ -179,7 +179,7 @@ ssBotBuilder.prototype.upload = function(fileObject, cb) {
       },
       headers: {
         "Authorization": "Bearer " + authtoken.getAccessToken(),
-        "Content-Type": "application/form-data"
+        "Content-Type": "multipart/form-data"
       }
     };
   } else {
@@ -193,7 +193,7 @@ ssBotBuilder.prototype.upload = function(fileObject, cb) {
       },
       headers: {
         "Authorization": "Bearer " + authtoken.getAccessToken(),
-        "Content-Type": "application/form-data"
+        "Content-Type": "multipart/form-data"
       }
     };
   }
@@ -204,7 +204,7 @@ ssBotBuilder.prototype.upload = function(fileObject, cb) {
 
   if (configuration.clientconfig.scheme == 'https' && configuration.clientconfig.ca != null) {
     clientOptions.agentOptions = {};
-    clientOptions.agentOptions.ca = require('fs').readFileSync(configuration.clientconfig.ca);
+    clientOptions.agentOptions.ca = configuration.clientconfig.ca && require('fs').readFileSync(configuration.clientconfig.ca);
   }
   attemptrequest(clientOptions, cb);
 }
@@ -234,7 +234,6 @@ ssBotBuilder.prototype.say = function(dest, msg, cb) {
     cb && cb("Bot Server is not in ready State");
     return ;
   }
-  msg.messageContact = {};
   msg.messageContact = dest;
   var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages';
   console.log('SENDING message with body' + JSON.stringify(msg));
@@ -272,8 +271,8 @@ ssBotBuilder.prototype.read = function (msgId, cb) {
     "RCSMessage" : {
       "status": "displayed"
     }
-  };  
-  requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
+  };
+  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
     msgId + '/status';
   console.log("request url is " + requesturl + " , message is: " + JSON.stringify(message));
   send(message, requesturl, "PUT", cb);
@@ -291,8 +290,8 @@ ssBotBuilder.prototype.revoke = function (msgId, cb) {
     "RCSMessage" : {
       "status": "canceled",
     }
-  };  
-  requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
+  };
+  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
     msgId + '/status';
   console.log("request url is " + requesturl + " , message is: " + JSON.stringify(message));
   send(message, requesturl, "PUT", cb);
@@ -306,8 +305,8 @@ ssBotBuilder.prototype.msgstatus = function (msgId, cb) {
     cb && cb("Bot Server is not in ready State");
     return;
   }
-    
-  requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
+
+  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
     msgId + '/status';
   console.log("request url is " + requesturl);
   send(null, requesturl, "GET", cb);
@@ -321,23 +320,23 @@ ssBotBuilder.prototype.fileinfo = function (fileId, cb) {
     cb && cb("Bot Server is not in ready State");
     return;
   }
-    
-  requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/files/' +
+
+  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/files/' +
     fileId;
   console.log("request url is " + requesturl);
   send(null, requesturl, "GET", cb);
 };
 
 /*Interface API to delete uploaded file*/
-ssBotBuilder.prototype.fileinfo = function (fileId, cb) {
+ssBotBuilder.prototype.deleteFile = function (fileId, cb) {
   console.log('---delete file---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
     return;
   }
-    
-  requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/files/' +
+
+  var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/files/' +
     fileId;
   console.log("request url is " + requesturl);
   send(null, requesturl, "DELETE", cb);
@@ -361,15 +360,39 @@ ssBotBuilder.prototype.capability = function (userContact, chatId, cb) {
     cb && cb("only one contact allowed");
     return;
   }
-  
+  var requesturl;
   if (userContact) {
-    requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '?userContact=' + userContact;
+    requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/contactCapabilities?userContact=' + userContact;
   } else {
-    requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '?chatId=' + chatId;
+    requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/contactCapabilities?chatId=' + chatId;
   }
   console.log("request url is " + requesturl);
   send(null, requesturl, "GET", cb);
 };
+
+/*Interface API to read Messages for Specific Keywords of type 'textMessage'(plain text message),
+'displayText'(displayText from suggested reply/action) and
+'postback' (postback.data from suggested response*/
+ssBotBuilder.prototype.handle = function(keywords, event, cb) {
+  if (!cb) {
+    console.log('Callback is null');
+    process.exit(1);
+  }
+  if (typeof(keywords) == 'string') {
+    keywords = [keywords];
+  }
+  var regkeywords = [];
+  if (!store_regexp(keywords, regkeywords)) {
+    console.log('Contains Invalid expression');
+    process.exit(1);
+  }
+  var matches_pair = {
+    keywords: regkeywords,
+    cb: cb
+  };
+  events[event] = events[event] || [];
+  events[event].push(matches_pair);
+}
 
 /*Private API to routeMessages*/
 var configureServiceRoute = function(webserver) {
@@ -379,12 +402,44 @@ var configureServiceRoute = function(webserver) {
   // logic to handle webhook POST
   webserver.post(configuration.serverconfig.webhook, cors(), function(req, res) {
     var obj = req.body;
-    console.log('GOT A POST MESSAGE :  ' + JSON.stringify(obj));
+    console.log('POST MESSAGE:  ' + JSON.stringify(obj));
+
+    // TODO: Remove follow handling
+    if (obj && obj.messageType && (obj.messageType.toLowerCase() == 'follow' || obj.messageType.toLowerCase() == 'unfollow')) {
+      console.log('got a follow message');
+      var followMessage = {
+        botID: obj.botID,
+        botNumber: obj.botNumber
+      };
+      followMessage.message = obj.message;
+      followMessage.contacts = obj.contacts;
+      listeners['follow'] && listeners['follow'](followMessage);
+    }
 
     // send everything to webhook
     if (obj) {
       set_event_type(obj);
-      listeners['webhook'] && listeners['webhook'](obj);
+      if (obj.RCSMessage && obj.RCSMessage.textMessage) {
+        var text = obj.RCSMessage.textMessage;
+        if (!(match_regexp(text, obj, 'textMessage'))) {
+          listeners['webhook'] && listeners['webhook'](obj);
+        }
+      } else if (obj.RCSMessage && obj.RCSMessage.suggestedResponse) {
+        var suggestionResponse = obj.RCSMessage.suggestedResponse.response;
+        var reply;
+        if (suggestionResponse.hasOwnProperty('reply')) {
+          reply = suggestionResponse.reply;
+        } else if (suggestionResponse.hasOwnProperty('action')) {
+          reply = suggestionResponse.action;
+        }
+        if (!(match_regexp(reply.displayText, obj, 'displayText'))) {
+          if (!reply.postback || !(match_regexp(reply.postback.data, obj, 'postback'))) {
+            listeners['webhook'] && listeners['webhook'](obj);
+          }
+        }
+      } else {
+        listeners['webhook'] && listeners['webhook'](obj);
+      }
     }
     res.send('ok');
   });
@@ -440,7 +495,7 @@ store_regexp = function(tests, regarr) {
   return true;
 };
 /*Private API to check Pattern Matching */
-match_regexp = function(message, evt) {
+match_regexp = function(text, message, evt) {
   if (events[evt]) {
     var matches_pairarr = events[evt];
     for (var i = 0; i < matches_pairarr.length; i++) {
@@ -448,7 +503,7 @@ match_regexp = function(message, evt) {
       var keywords = matches_pair.keywords || [];
       for (var t = 0; t < keywords.length; t++) {
         var test = keywords[t];
-        if (match = message.text.match(test)) {
+        if (match = text.match(test)) {
           var cb = matches_pair.cb;
           cb && cb(message);
       return true;
@@ -520,32 +575,10 @@ var send = function(msg, requesturl, method, cb) {
   }
   if (configuration.clientconfig.scheme == 'https' && configuration.clientconfig.ca != null) {
     clientOptions.agentOptions = {};
-    clientOptions.agentOptions.ca = require('fs').readFileSync(configuration.clientconfig.ca);
+    clientOptions.agentOptions.ca = configuration.clientconfig.ca && require('fs').readFileSync(configuration.clientconfig.ca);
   }
 
   attemptrequest(clientOptions,cb);
 }
 
-/*Interface API to read Messages for Specific Keywords of type 'message'(plain text message)
- and 'displayText'(displayText from suggested reply/action)*/
-ssBotBuilder.prototype.handle = function(keywords, event, cb) {
-  if (!cb) {
-    console.log('Callback is null');
-    process.exit(1);
-  }
-  if (typeof(keywords) == 'string') {
-    keywords = [keywords];
-  }
-  var regkeywords = [];
-  if (!store_regexp(keywords, regkeywords)) {
-    console.log('Contains Invalid expression');
-    process.exit(1);
-  }
-  var matches_pair = {
-    keywords: regkeywords,
-    cb: cb
-  };
-  events[event] = events[event] || [];
-  events[event].push(matches_pair);
-}
 module.exports = new ssBotBuilder();

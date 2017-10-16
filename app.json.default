@@ -1,0 +1,30 @@
+{
+  "apps": [ {
+    "script": "app.js",
+    "instances": 1,
+    "exec_mode": "fork",
+    "autorestart": true,
+    "kill_timeout": 2000,
+    "restart_delay": 2000,
+    "args": ["--color"],
+    "log_date_format": "YYYY-MM-DD HH:mm",
+    "out_file": "logs/coco.log",
+    "env": {
+      "options": {
+        "botID": "otDmWxrJS4aRPYLQNrLLJg",
+        "accesstoken": "su3JwlKUZXlU_ErSrgt1Vc9oDSo9vbt7RpJBNr_sl2g",
+        "botservice": "pue1-maap1elb-apigw-1295337022.us-east-1.elb.amazonaws.com",
+        "apipath": "/bot/v1/",
+        "clientconfig": {
+          "scheme": "http",
+          "connpoolsize": 10
+        },
+        "serverconfig": {
+          "scheme": "http",
+          "port": 3000,
+          "webhook": "/callback"
+        }
+      }
+    }
+  }]
+}

@@ -1,0 +1,25 @@
+{
+    "RCSMessage": {
+      "textMessage": "Hi, this is CoCo. I am sorry I don't understand what you are saying. Please tell me what you want to test.",
+      "suggestedChipList": {
+        "suggestions": [
+          {
+            "reply": {
+              "displayText": "Basic Functions",
+              "postback": {
+                "data": "menu_basic"
+              }
+            }
+          },
+          {
+            "reply": {
+              "displayText": "AT&T 10776",
+              "postback": {
+                "data": "menu_10776"
+              }
+            }
+          }
+        ]
+      }
+    }
+}

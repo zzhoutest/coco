@@ -1,4 +1,5 @@
 var ssbot = require('./ssbotbuilder.js');
+var fs = require("fs");
 
 var options = {  
   botID: 'otDmWxrJS4aRPYLQNrLLJg',
@@ -18,20 +19,15 @@ var options = {
 
 ssbot.createService(options, function (err, webserver) {
   if (!err) {
-    ssbot.listen('message', OnUserMsg);
-    ssbot.listen('disposition', OnDispositionMsg);
     ssbot.listen('state', onStateListener);
-    ssbot.listen('location', onLocationMessageListener);
-    ssbot.listen('file', onFileMessageListener);
-    ssbot.listen('audioMessage', onAudioMessageListener);
-    ssbot.listen('sharedData', onSharedDataListener);
-    ssbot.listen('webhook', onWebhookListener);
+    //ssbot.listen('follow',OnSubscribeMsg);
+    ssbot.listen('webhook', onWebhookMessage);
   }
 });
 
-var onWebhookListener = function (message) {
-  console.log("+++webhook callback received+++" + JSON.stringify(message));
-  console.log(JSON.stringify(message));
+var onWebhookMessage = function (message) {
+  console.log("+++webhook callback received+++\n" + JSON.stringify(message));
+  var reply;  
   
   if (!message) {
     console.log("!!!empty message!!!");
@@ -39,22 +35,32 @@ var onWebhookListener = function (message) {
   }
 
   if (message.event == "newUser") {
-
+    reply = JSON.parse(fs.readFileSync("res/json/text_hello.json"));
   } else if (message.event == "message") {
       ssbot.read(message.RCSMessage.msgId, onResponse);
       ssbot.typing(message.messageContact, "active", onResponse);
-      var reply = {
-        "RCSMessage": {
-          "textMessage": "hello world! I am coco!"
-        },
-        "messageContact": {
-          "userContact": "+14251234567"
-        }
-      };
+      reply = JSON.parse(fs.readFileSync("res/json/text_default.json"));
       ssbot.reply(message, reply, onResponse);
+  } else if (message.event == "response") {
+  } else if (message.event == "isTyping") {
+  } else if (message.event == "messageStatus") {
+  } else if (message.event == "fileStatus") {
+  } else if (message.event == "alias") {
+  } else {
+    ssbot.read(message.RCSMessage.msgId, onResponse);
+    ssbot.typing(message.messageContact, "active", onResponse);
+    reply = JSON.parse(fs.readFileSync("res/json/text_default.json"));
+    ssbot.reply(message, reply, onResponse);
   }
 }
 
+ssbot.handle(['menu_basic'], 'postback', handle_menu_basic);
+ssbot.handle(['menu_13340'], 'postback', handle_menu_13340);
+
+var handle_menu_basic = function (message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+}
 
 var onResponse = function (err, res, body) {
   if (err) {

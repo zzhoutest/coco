@@ -1,0 +1,33 @@
+{
+    "RCSMessage": {
+      "textMessage": "OK, please tell me what you want to test.",
+      "suggestedChipList": {
+        "suggestions": [
+          {
+            "reply": {
+              "displayText": "Messages",
+              "postback": {
+                "data": "menu_messages"
+              }
+            }
+          },  
+          {
+            "reply": {
+              "displayText": "Rich Card",
+              "postback": {
+                "data": "menu_rich_card"
+              }
+            }
+          },
+          {
+            "reply": {
+              "displayText": "API",
+              "postback": {
+                "data": "menu_api"
+              }
+            }
+          }
+        ]
+      }
+    }
+}
