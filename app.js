@@ -55,14 +55,14 @@ var onWebhookMessage = function (message) {
 }
 
 ssbot.handle(['menu_basic'], 'postback', handle_menu_basic);
-ssbot.handle(['menu_13340'], 'postback', handle_menu_13340);
+ssbot.handle(['menu_10776'], 'postback', handle_menu_10776);
 
 var handle_menu_basic = function (message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
 }
 
-var handle_menu_13340 = function (message) {
+var handle_menu_10776 = function (message) {
 }
 
 var onResponse = function (err, res, body) {
