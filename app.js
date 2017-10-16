@@ -62,6 +62,9 @@ var handle_menu_basic = function (message) {
   ssbot.typing(message.messageContact, "active", onResponse);
 }
 
+var handle_menu_13340 = function (message) {
+}
+
 var onResponse = function (err, res, body) {
   if (err) {
     console.log("err:"+err.message);
