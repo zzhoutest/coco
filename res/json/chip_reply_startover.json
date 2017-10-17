@@ -1,0 +1,15 @@
+{  
+    "suggestedChipList": {
+        "suggestions": [         
+            {
+                "reply": {
+                    "displayText": "Start Over",
+                    "postback": {
+                        "data": "reply_start_over"
+                    }
+                }
+            }          
+        ]
+      }      
+    
+}

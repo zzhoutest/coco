@@ -1,10 +1,16 @@
 var ssbot = require('./ssbotbuilder.js');
 var fs = require("fs");
+var simpletext = require('./res/json/text_list.json');
 
 var options = {  
+  //PROD/Sandbox
   botID: 'otDmWxrJS4aRPYLQNrLLJg',
   accesstoken: 'su3JwlKUZXlU_ErSrgt1Vc9oDSo9vbt7RpJBNr_sl2g',
   botservice: 'pue1-maap1elb-apigw-1295337022.us-east-1.elb.amazonaws.com',
+  //Dev
+  //botID: '365sDbSyQ862dJ8y9h6jKg',
+  //accesstoken: 'UgY-noogf3_kpu3ZdrVLpJ2tdXsmasiBC-cjs6M0KR8',
+  //botservice: 'maap1elb-apigw-64929672.ap-northeast-2.elb.amazonaws.com',
   apipath: '/bot/v1/',
   clientconfig: {
     scheme: 'http',
@@ -35,35 +41,136 @@ var onWebhookMessage = function (message) {
   }
 
   if (message.event == "newUser") {
-    reply = JSON.parse(fs.readFileSync("res/json/text_hello.json"));
+    reply = compose_simple_text(simpletext.hello);
   } else if (message.event == "message") {
+      handle_event_message(message);
+  } else if (message.event == "response") {
       ssbot.read(message.RCSMessage.msgId, onResponse);
       ssbot.typing(message.messageContact, "active", onResponse);
       reply = JSON.parse(fs.readFileSync("res/json/text_default.json"));
       ssbot.reply(message, reply, onResponse);
-  } else if (message.event == "response") {
   } else if (message.event == "isTyping") {
   } else if (message.event == "messageStatus") {
   } else if (message.event == "fileStatus") {
   } else if (message.event == "alias") {
-  } else {
+  } else if (message.RCSMessage && message.RCSMessage.msgId){
     ssbot.read(message.RCSMessage.msgId, onResponse);
     ssbot.typing(message.messageContact, "active", onResponse);
     reply = JSON.parse(fs.readFileSync("res/json/text_default.json"));
     ssbot.reply(message, reply, onResponse);
+  } else if (message.messageContact && message.messageContact.userContact) {
+    reply = compose_simple_text(simpletext.hello);
+    ssbot.say(message.messageContact, reply, onResponse);
   }
 }
 
-ssbot.handle(['menu_basic'], 'postback', handle_menu_basic);
-ssbot.handle(['menu_10776'], 'postback', handle_menu_10776);
+var compose_simple_text = function(text) {
+  var reply = {
+    "RCSMessage": {
+       "textMessage": ""
+    }
+  };
+  reply.RCSMessage.textMessage = text;
+  return reply;
+}
 
-var handle_menu_basic = function (message) {
+var handle_event_message = function(message) {
+  var reply;
+  if (message && message.RCSMessage && (message.RCSMessage.fileMessage || message.RCSMessage.audioMessage || message.RCSMessage.geolocationPushMessage)) {
+    if (message.RCSMessage.fileMessage) {
+      handle_test_send_file_to_bot(message);
+    }
+  } else {
+    handle_reply_start_over(message);
+  }
+}
+
+var handle_reply_start_over = function (message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
+  var reply = JSON.parse(fs.readFileSync("res/json/text_default.json"));
+  ssbot.reply(message, reply, onResponse);
 }
 
-var handle_menu_10776 = function (message) {
+var handle_reply_basic = function (message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_basic.json"));
+  ssbot.reply(message, reply, onResponse);
 }
+
+var handle_reply_10776 = function (message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_10776.json"));
+  ssbot.reply(message, reply, onResponse);
+}
+
+var handle_reply_bot_interaction = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_bot_interaction.json"));
+  ssbot.reply(message, reply, onResponse);
+}
+
+var handle_reply_send_msg_to_bot = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_send_msg_to_bot.json"));
+  ssbot.reply(message, reply, onResponse);
+}
+
+var handle_reply_send_text_to_bot = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+  var reply = compose_simple_text(simpletext.send_text_to_bot);
+  ssbot.reply(message, reply, onResponse);
+}
+
+var handle_test_read_receipt = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);  
+  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_test_read_receipt.json"));
+  ssbot.reply(message, reply, onResponse);
+}
+
+var handle_test_no_read_receipt = function(message) {  
+  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_test_no_read_receipt.json"));
+  ssbot.reply(message, reply, onResponse);
+}
+
+var handle_reply_send_file_to_bot = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+  var reply = compose_simple_text(simpletext.send_file_to_bot);
+  ssbot.reply(message, reply, onResponse);
+}
+
+var handle_test_send_file_to_bot = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+  var reply = compose_simple_text(simpletext.received_file);
+  ssbot.reply(message, reply, onResponse);
+  reply = {
+    "RCSMessage": {
+      "fileMessage": "",
+      "suggestedChipList": ""
+    }
+  };
+  reply.RCSMessage.fileMessage = message.RCSMessage.fileMessage;  
+  reply.suggestedChipList = JSON.parse(fs.readFileSync("res/json/chip_reply_startover.json"));
+  ssbot.reply(message, reply, onResponse);
+}
+
+
+ssbot.handle(['reply_start_over'], 'postback', handle_reply_start_over);
+ssbot.handle(['reply_basic'], 'postback', handle_reply_basic);
+ssbot.handle(['reply_10776'], 'postback', handle_reply_10776);
+ssbot.handle(['reply_bot_interaction'], 'postback', handle_reply_bot_interaction);
+ssbot.handle(['reply_send_msg_to_bot'], 'postback', handle_reply_send_msg_to_bot);
+ssbot.handle(['reply_send_text_to_bot'], 'postback', handle_reply_send_text_to_bot);
+ssbot.handle(['10776 read receipt'], 'textMessage', handle_test_read_receipt);
+ssbot.handle(['10776 no read receipt'], 'textMessage', handle_test_no_read_receipt);
+ssbot.handle(['reply_send_file_to_bot'], 'postback', handle_reply_send_file_to_bot);
 
 var onResponse = function (err, res, body) {
   if (err) {
@@ -593,6 +700,7 @@ ssbot.handle(['chiplistcard'], 'message', handleChiplistRichcard);
 ssbot.handle(['chiplistcarousel'], 'message', handleChiplistCarousel);
 ssbot.handle(['file'], 'message', handleSendFile);
 ssbot.handle(['yes'], 'displayText', handleYesSuggestedDisplayText);
+
 
 var OnUserMsg = function (message) {
   console.log("User message received \"" + JSON.stringify(message.RCSMessage));

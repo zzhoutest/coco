@@ -1,0 +1,49 @@
+{
+    "RCSMessage": {
+      "textMessage": "I received your message '10776 read receipt' and I sent both deliver and read receipt back. Your message status should be 'Read'. What else do you want to test?",
+      "suggestedChipList": {
+        "suggestions": [
+          {
+            "reply": {
+              "displayText": "Text",
+              "postback": {
+                "data": "reply_send_text_to_bot"
+              }
+            }
+          },  
+          {
+            "reply": {
+              "displayText": "File",
+              "postback": {
+                "data": "reply_send_file_to_bot"
+              }
+            }
+          },
+          {
+            "reply": {
+              "displayText": "RCS Audio",
+              "postback": {
+                "data": "reply_send_audio_to_bot"
+              }
+            }
+          },
+          {
+            "reply": {
+              "displayText": "Geolocation Push",
+              "postback": {
+                "data": "reply_send_geo_to_bot"
+              }
+            }
+          },
+          {
+            "reply": {
+              "displayText": "Start Over",
+              "postback": {
+                "data": "reply_start_over"
+              }
+            }
+          }          
+        ]
+      }      
+    }
+}

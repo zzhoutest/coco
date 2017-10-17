@@ -1,0 +1,41 @@
+{
+    "RCSMessage": {
+      "textMessage": "What kind of message do you want to send?",
+      "suggestedChipList": {
+        "suggestions": [
+          {
+            "reply": {
+              "displayText": "Text",
+              "postback": {
+                "data": "reply_send_text_to_bot"
+              }
+            }
+          },  
+          {
+            "reply": {
+              "displayText": "File",
+              "postback": {
+                "data": "reply_send_file_to_bot"
+              }
+            }
+          },
+          {
+            "reply": {
+              "displayText": "RCS Audio",
+              "postback": {
+                "data": "reply_send_audio_to_bot"
+              }
+            }
+          },
+          {
+            "reply": {
+              "displayText": "Geolocation Push",
+              "postback": {
+                "data": "reply_send_geo_to_bot"
+              }
+            }
+          }          
+        ]
+      }      
+    }
+}

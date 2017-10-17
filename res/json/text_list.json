@@ -1,0 +1,6 @@
+{
+    "hello": "Hello World! I am CoCo!",
+    "received_file": "I rceived below file.",
+    "send_text_to_bot": "Please type and send '10776 read receipt' or '10776 no read receipt'.",
+    "send_file_to_bot": "Please select and send a file to me."
+}

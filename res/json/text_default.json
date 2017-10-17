@@ -7,7 +7,7 @@
             "reply": {
               "displayText": "Basic Functions",
               "postback": {
-                "data": "menu_basic"
+                "data": "reply_basic"
               }
             }
           },
@@ -15,7 +15,7 @@
             "reply": {
               "displayText": "AT&T 10776",
               "postback": {
-                "data": "menu_10776"
+                "data": "reply_10776"
               }
             }
           }

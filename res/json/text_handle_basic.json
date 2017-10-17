@@ -7,7 +7,7 @@
             "reply": {
               "displayText": "Messages",
               "postback": {
-                "data": "menu_messages"
+                "data": "reply_messages"
               }
             }
           },  
@@ -15,7 +15,7 @@
             "reply": {
               "displayText": "Rich Card",
               "postback": {
-                "data": "menu_rich_card"
+                "data": "reply_rich_card"
               }
             }
           },
@@ -23,7 +23,7 @@
             "reply": {
               "displayText": "API",
               "postback": {
-                "data": "menu_api"
+                "data": "reply_api"
               }
             }
           }
