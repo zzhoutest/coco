@@ -129,12 +129,22 @@ var handle_reply_send_text_to_bot = function(message) {
 
 var handle_test_read_receipt = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);  
-  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_test_read_receipt.json"));
+  var reply;
+  if (message.RCSMessage.textMessage.length < 1024) {
+    reply = JSON.parse(fs.readFileSync("res/json/text_handle_test_read_receipt.json"));
+  } else {
+    reply = compose_simple_text(simpletext.send_text_to_bot_too_long);
+  }
   ssbot.reply(message, reply, onResponse);
 }
 
 var handle_test_no_read_receipt = function(message) {  
-  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_test_no_read_receipt.json"));
+  var reply;
+  if (message.RCSMessage.textMessage.length >= 1024) {
+    reply = JSON.parse(fs.readFileSync("res/json/text_handle_test_no_read_receipt.json"));
+  } else {
+    reply = compose_simple_text(simpletext.send_text_to_bot_not_long_enough);
+  }
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -160,7 +170,6 @@ var handle_test_send_file_to_bot = function(message) {
   reply.suggestedChipList = JSON.parse(fs.readFileSync("res/json/chip_reply_startover.json"));
   ssbot.reply(message, reply, onResponse);
 }
-
 
 ssbot.handle(['reply_start_over'], 'postback', handle_reply_start_over);
 ssbot.handle(['reply_basic'], 'postback', handle_reply_basic);

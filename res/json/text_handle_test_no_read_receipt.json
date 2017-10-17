@@ -21,22 +21,6 @@
           },
           {
             "reply": {
-              "displayText": "RCS Audio",
-              "postback": {
-                "data": "reply_send_audio_to_bot"
-              }
-            }
-          },
-          {
-            "reply": {
-              "displayText": "Geolocation Push",
-              "postback": {
-                "data": "reply_send_geo_to_bot"
-              }
-            }
-          },
-          {
-            "reply": {
               "displayText": "Start Over",
               "postback": {
                 "data": "reply_start_over"

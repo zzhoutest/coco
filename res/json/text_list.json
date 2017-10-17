@@ -1,6 +1,8 @@
 {
     "hello": "Hello World! I am CoCo!",
     "received_file": "I rceived below file.",
-    "send_text_to_bot": "Please type and send '10776 read receipt' or '10776 no read receipt'.",
+    "send_text_to_bot": "Please type and send a short (< 1024 bytes) message starting with '10776 read receipt' or a long (> 1024 bytes) message starting with '10776 no read receipt'.",
+    "send_text_to_bot_not_long_enough": "The message you sent is not long enough.",
+    "send_text_to_bot_too_long": "The message you sent is too long.",
     "send_file_to_bot": "Please select and send a file to me."
 }
