@@ -5,17 +5,17 @@
         "suggestions": [
           {
             "reply": {
-              "displayText": "Basic Functions",
+              "displayText": "AT&T 10776",
               "postback": {
-                "data": "reply_basic"
+                "data": "reply_10776"
               }
             }
           },
           {
             "reply": {
-              "displayText": "AT&T 10776",
+              "displayText": "Advanced Functions",
               "postback": {
-                "data": "reply_10776"
+                "data": "reply_advance"
               }
             }
           }

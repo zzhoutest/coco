@@ -74,10 +74,10 @@ var handle_reply_start_over = function (message) {
   ssbot.reply(message, reply, onResponse);
 }
 
-var handle_reply_basic = function (message) {
+var handle_reply_advance = function (message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
-  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_basic.json"));
+  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_advance.json"));
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -149,13 +149,15 @@ var handle_test_send_file_to_bot = function(message) {
   ssbot.typing(message.messageContact, "active", onResponse);
   var reply = compose_simple_text(simpletext.received_file);
   ssbot.reply(message, reply, onResponse);
+  
   reply = {
     "RCSMessage": {
       "fileMessage": "",      
     }
   };
+  
   reply.RCSMessage.fileMessage = message.RCSMessage.fileMessage;  
-  reply.RCSMessage.suggestedChipList = JSON.parse(fs.readFileSync("res/json/chip_reply_startover.json"));
+  //reply.RCSMessage.suggestedChipList = JSON.parse(fs.readFileSync("res/json/chip_reply_startover.json"));
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -169,13 +171,37 @@ var handle_reply_receive_text_from_bot = function(message) {
   } else {
     ran = Math.floor(Math.random() * (1024 - 512)) + 512;    
   }
-  
-  var reply = compose_simple_text(crypto.randomBytes(ran).toString('hex'));
+  var reply = compose_simple_text("I am sending " + ran * 2 + " bytes text to you.");
+  ssbot.reply(message, reply, onResponse);
+  reply = compose_simple_text(crypto.randomBytes(ran).toString('hex'));
   ssbot.reply(message, reply, onResponse);
 }
 
+var handle_reply_receive_file_from_bot = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+  var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;  
+  
+  var reply; 
+  if (pb == "reply_receive_image_from_bot") {
+    reply = compose_simple_text(simpletext.receive_image_file);
+    ssbot.reply(message, reply, onResponse);
+    reply = JSON.parse(fs.readFileSync("res/json/file_image.json"));         
+  } else if (pb == "reply_receive_audio_from_bot") {
+    reply = compose_simple_text(simpletext.receive_audio_file);
+    ssbot.reply(message, reply, onResponse);
+    reply = JSON.parse(fs.readFileSync("res/json/file_audio.json"));         
+  } else if (pb == "reply_receive_video_from_bot") {
+    reply = compose_simple_text(simpletext.receive_video_file);
+    ssbot.reply(message, reply, onResponse);
+    reply = JSON.parse(fs.readFileSync("res/json/file_video.json"));         
+  }
+  
+  ssbot.reply(message, reply, onResponse);
+}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+
 ssbot.handle(['reply_start_over'], 'postback', handle_reply_start_over);
-ssbot.handle(['reply_basic'], 'postback', handle_reply_basic);
+ssbot.handle(['reply_advance'], 'postback', handle_reply_advance);
 ssbot.handle(['reply_10776'], 'postback', handle_reply_10776);
 ssbot.handle(['reply_bot_interaction'], 'postback', handle_reply_bot_interaction);
 ssbot.handle(['reply_send_msg_to_bot'], 'postback', handle_reply_send_msg_to_bot);
@@ -185,6 +211,7 @@ ssbot.handle(['10776 no read receipt'], 'textMessage', handle_test_no_read_recei
 ssbot.handle(['reply_send_file_to_bot'], 'postback', handle_reply_send_file_to_bot);
 ssbot.handle(['reply_receive_msg_from_bot'], 'postback', handle_reply_receive_msg_from_bot);
 ssbot.handle(['reply_receive_short_text_from_bot', 'reply_receive_long_text_from_bot'], 'postback', handle_reply_receive_text_from_bot);
+ssbot.handle(['reply_receive_image_from_bot', 'reply_receive_audio_from_bot', 'reply_receive_video_from_bot'], 'postback', handle_reply_receive_file_from_bot);
 
 var onResponse = function (err, res, body) {
   if (err) {
