@@ -1,36 +1,9 @@
+require('log-timestamp');
 var ssbot = require('./ssbotbuilder.js');
 var fs = require("fs");
 var simpletext = require('./res/json/text_list.json');
-
-var options = {
-  /*  
-  //PROD/Sandbox
-  botID: 'otDmWxrJS4aRPYLQNrLLJg',
-  accesstoken: 'su3JwlKUZXlU_ErSrgt1Vc9oDSo9vbt7RpJBNr_sl2g',
-  botservice: 'pue1-maap1elb-apigw-1295337022.us-east-1.elb.amazonaws.com',
-  */
-  /*
-  //Dev
-  botID: '365sDbSyQ862dJ8y9h6jKg',
-  accesstoken: 'UgY-noogf3_kpu3ZdrVLpJ2tdXsmasiBC-cjs6M0KR8',
-  botservice: 'maap1elb-apigw-64929672.ap-northeast-2.elb.amazonaws.com',
-  */
-  //LAB/ATT
-  botID: 'AQnsJY1oQ7qKRgFtT4bU9w',
-  accesstoken: 'VXHKUYIzRziLB0ZJ7rkO7QeudnUWuErjJcuI7jkuukY',
-  botservice: 'suw2-maap1elb-apigw-289990855.us-west-2.elb.amazonaws.com',
-
-  apipath: '/bot/v1/',
-  clientconfig: {
-    scheme: 'http',
-    connpoolsize: 10
-  },
-  serverconfig: {
-    scheme: 'http',
-    port: 3100,
-    webhook: '/callback'
-  }
-};
+var options = require('./options.json');
+var crypto = require("crypto");
 
 ssbot.createService(options, function (err, webserver) {
   if (!err) {
@@ -129,6 +102,13 @@ var handle_reply_send_msg_to_bot = function(message) {
   ssbot.reply(message, reply, onResponse);
 }
 
+var handle_reply_receive_msg_from_bot = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_receive_msg_from_bot.json"));
+  ssbot.reply(message, reply, onResponse);
+}
+
 var handle_reply_send_text_to_bot = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
@@ -171,12 +151,26 @@ var handle_test_send_file_to_bot = function(message) {
   ssbot.reply(message, reply, onResponse);
   reply = {
     "RCSMessage": {
-      "fileMessage": "",
-      "suggestedChipList": ""
+      "fileMessage": "",      
     }
   };
   reply.RCSMessage.fileMessage = message.RCSMessage.fileMessage;  
   reply.RCSMessage.suggestedChipList = JSON.parse(fs.readFileSync("res/json/chip_reply_startover.json"));
+  ssbot.reply(message, reply, onResponse);
+}
+
+var handle_reply_receive_text_from_bot = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+  var pb = message.RCSMessage.suggestedResponse.response.reply.postback;
+  var ran;
+  if (pb == "reply_receive_short_text_from_bot") {
+    ran = Math.floor(Math.random() * (512 - 1)) + 1;    
+  } else {
+    ran = Math.floor(Math.random() * (1024 - 512)) + 512;
+  }
+  console.log("-------------random: " + ran);
+  var reply = compose_simple_text(crypto.randomBytes(ran).toString('hex'));
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -189,6 +183,8 @@ ssbot.handle(['reply_send_text_to_bot'], 'postback', handle_reply_send_text_to_b
 ssbot.handle(['10776 read receipt'], 'textMessage', handle_test_read_receipt);
 ssbot.handle(['10776 no read receipt'], 'textMessage', handle_test_no_read_receipt);
 ssbot.handle(['reply_send_file_to_bot'], 'postback', handle_reply_send_file_to_bot);
+ssbot.handle(['reply_receive_msg_from_bot'], 'postback', handle_reply_receive_msg_from_bot);
+ssbot.handle(['reply_receive_short_text_from_bot', 'reply_receive_long_text_from_bot'], 'postback', handle_reply_receive_text_from_bot);
 
 var onResponse = function (err, res, body) {
   if (err) {

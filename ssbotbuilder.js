@@ -10,6 +10,7 @@ var authtoken;
 var tokenState = false;
 var BotServiceAgent;
 var listeners = {};
+require('log-timestamp');
 
 /*Module Declaration*/
 var ssBotBuilder = function() {
