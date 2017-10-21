@@ -162,14 +162,14 @@ var handle_test_send_file_to_bot = function(message) {
 var handle_reply_receive_text_from_bot = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
-  var pb = message.RCSMessage.suggestedResponse.response.reply.postback;
+  var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;  
   var ran;
   if (pb == "reply_receive_short_text_from_bot") {
-    ran = Math.floor(Math.random() * (512 - 1)) + 1;    
+    ran = Math.floor(Math.random() * (512 - 1)) + 1;        
   } else {
-    ran = Math.floor(Math.random() * (1024 - 512)) + 512;
+    ran = Math.floor(Math.random() * (1024 - 512)) + 512;    
   }
-  console.log("-------------random: " + ran);
+  
   var reply = compose_simple_text(crypto.randomBytes(ran).toString('hex'));
   ssbot.reply(message, reply, onResponse);
 }
