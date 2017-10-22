@@ -29,14 +29,25 @@
     "test_receive_image_from_coco": "Image",
     "test_receive_audio_from_coco": "Audio",
     "test_receive_video_from_coco": "Video",
+    "test_receive_gif_from_coco": "GIF",
     "what_msg_to_receive": "What kind of message do you want to receive?",
     "receive_image_file": "I am sending an image file to you. Please report the issue if you don't receive it after a while.",
     "receive_audio_file": "I am sending an audio file to you. Please report the issue if you don't receive it after a while.",
     "receive_video_file": "I am sending a video file to you. Please report the issue if you don't receive it after a while.",
 
+    "what_media_type_richcard": "What's the media type in the rich card?",
     "test_receive_normal_richcard": "Normal",
     "test_receive_no_thumbnail_richcard": "No Thumbnail",
     "test_receive_broken_thumbnail_richcard": "Broken Thumbnail Only",
     "test_receive_broken_file_richcard": "Broken File Only",
-    "test_receive_all_broken_richcard": "Broken Thumbnail and Broken File"
+    "test_receive_all_broken_richcard": "Broken Thumbnail and Broken File",
+    "normal_richcard": "Normal rich card with working thumbnail and file.",
+    "no_thumbnail_richcard": "Rich card without thumbnail but with working file.",
+    "broken_thumbnail_richcard": "Rich card with broken thumbnail and working file.",
+    "broken_file_richcard": "Rich card with working thumbnail and broken file.",
+    "all_broken_richcard": "Rich card with broken thumbnail and broken file.",
+    "test_receive_image_richcard": "Image",
+    "test_receive_audio_richcard": "Audio",
+    "test_receive_video_richcard": "Video",
+    "test_receive_gif_richcard": "GIF"
 }

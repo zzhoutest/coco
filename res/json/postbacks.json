@@ -21,5 +21,9 @@
     "test_receive_no_thumbnail_richcard": "reply_receive_no_thumbnail_richcard",
     "test_receive_broken_thumbnail_richcard": "reply_receive_broken_thumbnail_richcard",
     "test_receive_broken_file_richcard": "reply_receive_broken_file_richcard",
-    "test_receive_all_broken_richcard": "reply_receive_all_broken_richcard"
+    "test_receive_all_broken_richcard": "reply_receive_all_broken_richcard",
+    "test_receive_image_richcard": "reply_receive_image_richcard",
+    "test_receive_audio_richcard": "reply_receive_audio_richcard",
+    "test_receive_video_richcard": "reply_receive_video_richcard",
+    "test_receive_gif_richcard": "reply_receive_gif_richcard"
 }

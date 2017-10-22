@@ -470,38 +470,38 @@ ssBotBuilder.prototype.newSuggestedChipList = function(suggestions) {
   return cl;
 }
 
-ssBotBuilder.prototype.LAYOUT_ORIENTATION.VERTICAL = "VERTICAL";
-ssBotBuilder.prototype.LAYOUT_ORIENTATION.HORIZONTAL = "HORIZONTAL";
-ssBotBuilder.prototype.IMAGE_ALIGNMENT.LEFT = "LEFT";
-ssBotBuilder.prototype.IMAGE_ALIGNMENT.RIGHT = "RIGHT";
+ssBotBuilder.prototype.LAYOUT_ORIENTATION_VERTICAL = "VERTICAL";
+ssBotBuilder.prototype.LAYOUT_ORIENTATION_HORIZONTAL = "HORIZONTAL";
+ssBotBuilder.prototype.IMAGE_ALIGNMENT_LEFT = "LEFT";
+ssBotBuilder.prototype.IMAGE_ALIGNMENT_RIGHT = "RIGHT";
 
 ssBotBuilder.prototype.newRichCardLayout = function(orientation, imageAlignment) {
   var layout = {};
-  if (orientation == this.LAYOUT_ORIENTATION.VERTICAL || orientation == this.LAYOUT_ORIENTATION.HORIZONTAL) {
+  if (orientation == this.LAYOUT_ORIENTATION_VERTICAL || orientation == this.LAYOUT_ORIENTATION_HORIZONTAL) {
     this.cardOrientation = orientation;
   } else {
-    this.cardOrientation = this.LAYOUT_ORIENTATION.VERTICAL;
+    this.cardOrientation = this.LAYOUT_ORIENTATION_VERTICAL;
   }
 
-  if (orientation == this.LAYOUT_ORIENTATION.HORIZONTAL && (imageAlignment == this.IMAGE_ALIGNMENT.LEFT || imageAlignment == this.IMAGE_ALIGNMENT.RIGHT)) {
+  if (orientation == this.LAYOUT_ORIENTATION_HORIZONTAL && (imageAlignment == this.IMAGE_ALIGNMENT_LEFT || imageAlignment == this.IMAGE_ALIGNMENT_RIGHT)) {
     this.imageAlignment = imageAlignment;
   }
   return layout;
 }
 
-ssBotBuilder.prototype.MEDIA_HEIGHT.SHORT_HEIGHT = "SHORT_HEIGHT";
-ssBotBuilder.prototype.MEDIA_HEIGHT.MEDIUM_HEIGHT = "MEDIUM_HEIGHT";
-ssBotBuilder.prototype.MEDIA_HEIGHT.TALL_HEIGHT = "TALL_HEIGHT";
+ssBotBuilder.prototype.MEDIA_HEIGHT_SHORT_HEIGHT = "SHORT_HEIGHT";
+ssBotBuilder.prototype.MEDIA_HEIGHT_MEDIUM_HEIGHT = "MEDIUM_HEIGHT";
+ssBotBuilder.prototype.MEDIA_HEIGHT_TALL_HEIGHT = "TALL_HEIGHT";
 
 ssBotBuilder.prototype.newRichCardMedia = function(mediaUrl, mediaContentType, mediaFileSize, height, thumbnailUrl, thumbnailContentType, thumbnailFileSize, contentDescription) {
   var media = {};
   media.mediaUrl = mediaUrl;
   media.mediaContentType = mediaContentType;
   media.mediaFileSize = mediaFileSize;
-  if (height == this.MEDIA_HEIGHT.SHORT_HEIGHT || this.MEDIA_HEIGHT.MEDIUM_HEIGHT || this.MEDIA_HEIGHT.TALL_HEIGHT) {
+  if (height == this.MEDIA_HEIGHT_SHORT_HEIGHT || this.MEDIA_HEIGHT_MEDIUM_HEIGHT || this.MEDIA_HEIGHT_TALL_HEIGHT) {
     media.height = height;
   } else {
-    media.height = this.MEDIA_HEIGHT.MEDIUM_HEIGHT;
+    media.height = this.MEDIA_HEIGHT_MEDIUM_HEIGHT;
   }
   if (thumbnailUrl) {
     media.thumbnailUrl = thumbnailUrl;
@@ -542,8 +542,12 @@ ssBotBuilder.prototype.newGeneralRichCard = function(layout, content) {
     }
   }
   card.message.generalPurposeCard.layout = layout;
-  card.message.generalPurposeCard.content = configuration;
-  return card;
+  card.message.generalPurposeCard.content = content;
+  var msg = {
+    "RCSMessage": {}
+  };
+  msg.RCSMessage.richcardMessage = card;
+  return msg;
 }
 
 /*Private API to routeMessages*/
