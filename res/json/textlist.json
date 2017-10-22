@@ -32,5 +32,11 @@
     "what_msg_to_receive": "What kind of message do you want to receive?",
     "receive_image_file": "I am sending an image file to you. Please report the issue if you don't receive it after a while.",
     "receive_audio_file": "I am sending an audio file to you. Please report the issue if you don't receive it after a while.",
-    "receive_video_file": "I am sending a video file to you. Please report the issue if you don't receive it after a while."
+    "receive_video_file": "I am sending a video file to you. Please report the issue if you don't receive it after a while.",
+
+    "test_receive_normal_richcard": "Normal",
+    "test_receive_no_thumbnail_richcard": "No Thumbnail",
+    "test_receive_broken_thumbnail_richcard": "Broken Thumbnail Only",
+    "test_receive_broken_file_richcard": "Broken File Only",
+    "test_receive_all_broken_richcard": "Broken Thumbnail and Broken File"
 }

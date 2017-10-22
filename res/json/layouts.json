@@ -1,0 +1,13 @@
+{
+    "general_vertical": {
+        "cardOrientation": "VERTICAL"
+    },
+    "general_horizontal_left": {
+        "cardOrientation": "HORIZONTAL",
+        "imageAlignment": "LEFT" 
+    },
+    "general_horizontal_right": {
+        "cardOrientation": "HORIZONTAL",
+        "imageAlignment": "RIGHT" 
+    }
+}

@@ -451,18 +451,100 @@ ssBotBuilder.prototype.newReply = function(displayText, postback) {
 }
 
 ssBotBuilder.prototype.newSuggestions = function() {
-  var i, array = [];
-  for (i = 0; i < arguments.length; i++) {
-    array.push(arguments[i]);
+  var i, suggestions = [];
+  var len = arguments.length;
+  if (len > 11) {
+    len = 11;
   }
-  var obj = {
-    "suggestions": {}
+  for (i = 0; i < len; i++) {
+    suggestions.push(arguments[i]);
   }
-  obj.suggestions = array;
-  return obj;
+  return suggestions;
 }
 
+ssBotBuilder.prototype.newSuggestedChipList = function(suggestions) {
+  var cl = {
+    "suggestions": {}
+  }
+  cl.suggestions = suggestions;
+  return cl;
+}
 
+ssBotBuilder.prototype.LAYOUT_ORIENTATION.VERTICAL = "VERTICAL";
+ssBotBuilder.prototype.LAYOUT_ORIENTATION.HORIZONTAL = "HORIZONTAL";
+ssBotBuilder.prototype.IMAGE_ALIGNMENT.LEFT = "LEFT";
+ssBotBuilder.prototype.IMAGE_ALIGNMENT.RIGHT = "RIGHT";
+
+ssBotBuilder.prototype.newRichCardLayout = function(orientation, imageAlignment) {
+  var layout = {};
+  if (orientation == this.LAYOUT_ORIENTATION.VERTICAL || orientation == this.LAYOUT_ORIENTATION.HORIZONTAL) {
+    this.cardOrientation = orientation;
+  } else {
+    this.cardOrientation = this.LAYOUT_ORIENTATION.VERTICAL;
+  }
+
+  if (orientation == this.LAYOUT_ORIENTATION.HORIZONTAL && (imageAlignment == this.IMAGE_ALIGNMENT.LEFT || imageAlignment == this.IMAGE_ALIGNMENT.RIGHT)) {
+    this.imageAlignment = imageAlignment;
+  }
+  return layout;
+}
+
+ssBotBuilder.prototype.MEDIA_HEIGHT.SHORT_HEIGHT = "SHORT_HEIGHT";
+ssBotBuilder.prototype.MEDIA_HEIGHT.MEDIUM_HEIGHT = "MEDIUM_HEIGHT";
+ssBotBuilder.prototype.MEDIA_HEIGHT.TALL_HEIGHT = "TALL_HEIGHT";
+
+ssBotBuilder.prototype.newRichCardMedia = function(mediaUrl, mediaContentType, mediaFileSize, height, thumbnailUrl, thumbnailContentType, thumbnailFileSize, contentDescription) {
+  var media = {};
+  media.mediaUrl = mediaUrl;
+  media.mediaContentType = mediaContentType;
+  media.mediaFileSize = mediaFileSize;
+  if (height == this.MEDIA_HEIGHT.SHORT_HEIGHT || this.MEDIA_HEIGHT.MEDIUM_HEIGHT || this.MEDIA_HEIGHT.TALL_HEIGHT) {
+    media.height = height;
+  } else {
+    media.height = this.MEDIA_HEIGHT.MEDIUM_HEIGHT;
+  }
+  if (thumbnailUrl) {
+    media.thumbnailUrl = thumbnailUrl;
+  }
+  if (thumbnailContentType) {
+    media.thumbnailContentType = thumbnailContentType;
+  }
+  if (thumbnailFileSize) {
+    media.thumbnailFileSize = thumbnailFileSize;
+  }
+  if (contentDescription) {
+    media.contentDescription = contentDescription.substring(0,200);
+  }
+  return media;
+}
+
+ssBotBuilder.prototype.newGeneralRichCardContent = function(media, title, description, suggestions) {
+  var content = {};
+  if (media) {
+    content.media = media;
+  }
+  if (title) {
+    content.title = title.substring(0,200);
+  }
+  if (description) {
+    content.description = description.substring(0, 2000);
+  }
+  if (suggestions) {
+    content.suggestions = content.suggestions;
+  }
+  return content;
+}
+
+ssBotBuilder.prototype.newGeneralRichCard = function(layout, content) {
+  var card = {
+    "message": {
+      "generalPurposeCard": {}
+    }
+  }
+  card.message.generalPurposeCard.layout = layout;
+  card.message.generalPurposeCard.content = configuration;
+  return card;
+}
 
 /*Private API to routeMessages*/
 var configureServiceRoute = function(webserver) {

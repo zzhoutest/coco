@@ -7,6 +7,7 @@ var crypto = require("crypto");
 var chips = require('./res/json/chips.json');
 var postbacks = require('./res/json/postbacks.json');
 var files = require('./res/json/files.json');
+var layouts = require('./res/json/layouts.json');
 
 ssbot.createService(options, function (err, webserver) {
   if (!err) {
@@ -62,7 +63,7 @@ var handle_reply_start_over = function (message) {
   var r1 = ssbot.newReply(simpletext.test_10776, postbacks.test_10776);
   var r2 = ssbot.newReply(simpletext.test_advanced, postbacks.test_advanced);
   var suggestions = ssbot.newSuggestions(r1, r2);
-  reply.RCSMessage.suggestedChipList = suggestions;
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   
   ssbot.reply(message, reply, onResponse);
 }
@@ -76,7 +77,7 @@ var handle_reply_advanced = function (message) {
   var r2 = ssbot.newReply(simpletext.test_richcard, postbacks.test_richcard_adv);
   var r3 = ssbot.newReply(simpletext.test_api, postbacks.test_api);
   var suggestions = ssbot.newSuggestions(r1, r2, r3);
-  reply.RCSMessage.suggestedChipList = suggestions;
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   
   ssbot.reply(message, reply, onResponse);
 }
@@ -90,7 +91,7 @@ var handle_reply_10776 = function (message) {
   var r2 = ssbot.newReply(simpletext.test_richcard, postbacks.test_richcard_10776);
   var r3 = ssbot.newReply(simpletext.test_chiplist, postbacks.test_chiplist);
   var suggestions = ssbot.newSuggestions(r1, r2, r3);
-  reply.RCSMessage.suggestedChipList = suggestions;
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
 
   ssbot.reply(message, reply, onResponse);
 }
@@ -103,7 +104,7 @@ var handle_reply_bot_interaction = function(message) {
   var r1 = ssbot.newReply(simpletext.test_send_msg_to_coco, postbacks.test_send_msg_to_coco);
   var r2 = ssbot.newReply(simpletext.test_receive_msg_from_coco, postbacks.test_receive_msg_from_coco);
   var suggestions = ssbot.newSuggestions(r1, r2);
-  reply.RCSMessage.suggestedChipList = suggestions;
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
 
   ssbot.reply(message, reply, onResponse);
 }
@@ -116,7 +117,7 @@ var handle_reply_send_msg_to_coco = function(message) {
   var r1 = ssbot.newReply(simpletext.test_send_text_to_coco, postbacks.test_send_text_to_coco);
   var r2 = ssbot.newReply(simpletext.test_send_file_to_coco, postbacks.test_send_file_to_coco);
   var suggestions = ssbot.newSuggestions(r1, r2);
-  reply.RCSMessage.suggestedChipList = suggestions;
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
 
   ssbot.reply(message, reply, onResponse);
 }
@@ -132,7 +133,7 @@ var handle_reply_receive_msg_from_coco = function(message) {
   var r4 = ssbot.newReply(simpletext.test_receive_audio_from_coco, postbacks.test_receive_audio_from_coco);
   var r5 = ssbot.newReply(simpletext.test_receive_video_from_coco, postbacks.test_receive_video_from_coco);
   var suggestions = ssbot.newSuggestions(r1, r2, r3, r4, r5);
-  reply.RCSMessage.suggestedChipList = suggestions;
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   
   ssbot.reply(message, reply, onResponse);
 }
@@ -153,7 +154,7 @@ var handle_test_read_receipt = function(message) {
     var r2 = ssbot.newReply(simpletext.test_send_file_to_coco, postbacks.test_send_file_to_coco);
     var r3 = chips.start_over;
     var suggestions = ssbot.newSuggestions(r1, r2, r3);
-    reply.RCSMessage.suggestedChipList = suggestions;
+    reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   } else {
     reply = ssbot.newTextMessage(simpletext.send_text_to_coco_too_long);
   }
@@ -168,7 +169,7 @@ var handle_test_no_read_receipt = function(message) {
     var r2 = ssbot.newReply(simpletext.test_send_file_to_coco, postbacks.test_send_file_to_coco);
     var r3 = chips.start_over;
     var suggestions = ssbot.newSuggestions(r1, r2, r3);
-    reply.RCSMessage.suggestedChipList = suggestions;
+    reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   } else {
     reply = ssbot.newTextMessage(simpletext.send_text_to_coco_not_long_enough);
   }
@@ -203,14 +204,17 @@ var handle_reply_receive_text_from_coco = function(message) {
   ssbot.typing(message.messageContact, "active", onResponse);
   var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;  
   var ran;
+  var str;
   if (pb == postbacks.test_receive_short_text_from_coco) {
-    ran = Math.floor(Math.random() * (512 - 1)) + 1;        
+    //ran = Math.floor(Math.random() * (512 - 1)) + 1;
+    str = generateRandomString(1, 512);        
   } else if (pb == postbacks.test_receive_long_text_from_coco) {
-    ran = Math.floor(Math.random() * (1024 - 512)) + 512;    
+    //ran = Math.floor(Math.random() * (1024 - 512)) + 512;    
+    str = generateRandomString(512, 1024);
   }
   var reply = ssbot.newTextMessage("I am sending " + ran * 2 + " bytes text to you.");
   ssbot.reply(message, reply, onResponse);
-  reply = ssbot.newTextMessage(crypto.randomBytes(ran).toString('hex'));
+  reply = ssbot.newTextMessage(str);
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -238,6 +242,22 @@ var handle_reply_receive_file_from_coco = function(message) {
   ssbot.reply(message, reply, onResponse);
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 
+var handle_reply_richcard_10776 = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+
+  var reply = ssbot.newTextMessage(simpletext.what_to_test);
+  var r1 = ssbot.newReply(simpletext.test_receive_normal_richcard, postbacks.test_receive_normal_richcard);
+  var r2 = ssbot.newReply(simpletext.test_receive_no_thumbnail_richcard, postbacks.test_receive_no_thumbnail_richcard);
+  var r3 = ssbot.newReply(simpletext.test_receive_broken_thumbnail_richcard, postbacks.test_receive_broken_thumbnail_richcard);
+  var r4 = ssbot.newReply(simpletext.test_receive_broken_file_richcard, postbacks.test_receive_broken_file_richcard);
+  var r5 = ssbot.newReply(simpletext.test_receive_all_broken_richcard, postbacks.test_receive_all_broken_richcard);
+  var suggestions = ssbot.newSuggestions(r1, r2, r3, r4, r5);
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
+
+  ssbot.reply(message, reply, onResponse);
+}
+
 ssbot.handle(['reply_start_over'], 'postback', handle_reply_start_over);
 ssbot.handle(['reply_test_advanced'], 'postback', handle_reply_advanced);
 ssbot.handle(['reply_test_10776'], 'postback', handle_reply_10776);
@@ -250,6 +270,8 @@ ssbot.handle(['reply_send_file_to_coco'], 'postback', handle_reply_send_file_to_
 ssbot.handle(['reply_receive_msg_from_coco'], 'postback', handle_reply_receive_msg_from_coco);
 ssbot.handle(['reply_receive_short_text_from_coco', 'reply_receive_long_text_from_coco'], 'postback', handle_reply_receive_text_from_coco);
 ssbot.handle(['reply_receive_image_from_coco', 'reply_receive_audio_from_coco', 'reply_receive_video_from_coco'], 'postback', handle_reply_receive_file_from_coco);
+ssbot.handle(['reply_richcard_10776'], 'postback', handle_reply_richcard_10776);
+ssbot.handle(['reply_receive_normal_richcard','reply_receive_no_thumbnail_richcard','reply_receive_broken_thumbnail_richcard','reply_receive_broken_file_richcard','reply_receive_all_broken_richcard'], 'postback', handle_reply_receive_richcard_from_coco);
 
 var onResponse = function (err, res, body) {
   if (err) {
@@ -271,6 +293,12 @@ var onStateListener = function (state, reason) {
     console.log("Bot is working correctly");
   }
 }
+
+var generateRandomString = function (min, max) {
+  var ran = Math.floor(Math.random() * (max - min)) + min;
+  return crypto.randomBytes(ran).toString('hex');
+}
+
 
 var onLocationMessageListener = function (message) {
   console.log("User location received : " + JSON.stringify(message.RCSMessage.geolocationPushMessage));

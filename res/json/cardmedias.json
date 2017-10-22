@@ -1,0 +1,12 @@
+{
+    "image_coco_medium": {
+        "mediaUrl": "https://s3-us-west-2.amazonaws.com/maap-coco/coco.mp4",
+        "mediaContentType": "video/mp4",
+        "mediaFileSize": 1554140,
+        "thumbnailUrl": "https://s3-us-west-2.amazonaws.com/maap-coco/coco.jpg",
+        "thumbnailContentType": "image/jpeg",
+        "thumbnailFileSize": 11041,
+        "height": "MEDIUM_HEIGHT",
+        "contentDescription": "Accessiblity text for use with screen readers. Will not be shown on screen."
+    }
+}
