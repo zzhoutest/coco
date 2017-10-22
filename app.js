@@ -1,9 +1,12 @@
 require('log-timestamp');
 var ssbot = require('./ssbotbuilder.js');
 var fs = require("fs");
-var simpletext = require('./res/json/text_list.json');
+var simpletext = require('./res/json/textlist.json');
 var options = require('./options.json');
 var crypto = require("crypto");
+var chips = require('./res/json/chips.json');
+var postbacks = require('./res/json/postbacks.json');
+var files = require('./res/json/files.json');
 
 ssbot.createService(options, function (err, webserver) {
   if (!err) {
@@ -23,44 +26,28 @@ var onWebhookMessage = function (message) {
   }
 
   if (message.event == "newUser") {
-    reply = compose_simple_text(simpletext.hello);
+    reply = ssbot.newTextMessage(simpletext.hello);
   } else if (message.event == "message") {
       handle_event_message(message);
   } else if (message.event == "response") {
-      ssbot.read(message.RCSMessage.msgId, onResponse);
-      ssbot.typing(message.messageContact, "active", onResponse);
-      reply = JSON.parse(fs.readFileSync("res/json/text_default.json"));
-      ssbot.reply(message, reply, onResponse);
+      handle_reply_start_over(message);
   } else if (message.event == "isTyping") {
   } else if (message.event == "messageStatus") {
   } else if (message.event == "fileStatus") {
   } else if (message.event == "alias") {
   } else if (message.RCSMessage && message.RCSMessage.msgId){
-    ssbot.read(message.RCSMessage.msgId, onResponse);
-    ssbot.typing(message.messageContact, "active", onResponse);
-    reply = JSON.parse(fs.readFileSync("res/json/text_default.json"));
-    ssbot.reply(message, reply, onResponse);
+    handle_reply_start_over(message);
   } else if (message.messageContact && message.messageContact.userContact) {
-    reply = compose_simple_text(simpletext.hello);
+    reply = ssbot.newTextMessage(simpletext.hello);
     ssbot.say(message.messageContact, reply, onResponse);
   }
-}
-
-var compose_simple_text = function(text) {
-  var reply = {
-    "RCSMessage": {
-       "textMessage": ""
-    }
-  };
-  reply.RCSMessage.textMessage = text;
-  return reply;
 }
 
 var handle_event_message = function(message) {
   var reply;
   if (message && message.RCSMessage && (message.RCSMessage.fileMessage || message.RCSMessage.audioMessage || message.RCSMessage.geolocationPushMessage)) {
     if (message.RCSMessage.fileMessage) {
-      handle_test_send_file_to_bot(message);
+      handle_test_send_file_to_coco(message);
     }
   } else {
     handle_reply_start_over(message);
@@ -70,49 +57,90 @@ var handle_event_message = function(message) {
 var handle_reply_start_over = function (message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
-  var reply = JSON.parse(fs.readFileSync("res/json/text_default.json"));
+
+  var reply = ssbot.newTextMessage(simpletext.default);
+  var r1 = ssbot.newReply(simpletext.test_10776, postbacks.test_10776);
+  var r2 = ssbot.newReply(simpletext.test_advanced, postbacks.test_advanced);
+  var suggestions = ssbot.newSuggestions(r1, r2);
+  reply.RCSMessage.suggestedChipList = suggestions;
+  
   ssbot.reply(message, reply, onResponse);
 }
 
-var handle_reply_advance = function (message) {
+var handle_reply_advanced = function (message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
-  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_advance.json"));
+  
+  var reply = ssbot.newTextMessage(simpletext.what_to_test);
+  var r1 = ssbot.newReply(simpletext.test_message, postbacks.test_message);
+  var r2 = ssbot.newReply(simpletext.test_richcard, postbacks.test_richcard_adv);
+  var r3 = ssbot.newReply(simpletext.test_api, postbacks.test_api);
+  var suggestions = ssbot.newSuggestions(r1, r2, r3);
+  reply.RCSMessage.suggestedChipList = suggestions;
+  
   ssbot.reply(message, reply, onResponse);
 }
 
 var handle_reply_10776 = function (message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
-  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_10776.json"));
+  
+  var reply = ssbot.newTextMessage(simpletext.what_to_test);
+  var r1 = ssbot.newReply(simpletext.test_bot_interaction, postbacks.test_bot_interaction);
+  var r2 = ssbot.newReply(simpletext.test_richcard, postbacks.test_richcard_10776);
+  var r3 = ssbot.newReply(simpletext.test_chiplist, postbacks.test_chiplist);
+  var suggestions = ssbot.newSuggestions(r1, r2, r3);
+  reply.RCSMessage.suggestedChipList = suggestions;
+
   ssbot.reply(message, reply, onResponse);
 }
 
 var handle_reply_bot_interaction = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
-  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_bot_interaction.json"));
+
+  var reply = ssbot.newTextMessage(simpletext.what_to_test);
+  var r1 = ssbot.newReply(simpletext.test_send_msg_to_coco, postbacks.test_send_msg_to_coco);
+  var r2 = ssbot.newReply(simpletext.test_receive_msg_from_coco, postbacks.test_receive_msg_from_coco);
+  var suggestions = ssbot.newSuggestions(r1, r2);
+  reply.RCSMessage.suggestedChipList = suggestions;
+
   ssbot.reply(message, reply, onResponse);
 }
 
-var handle_reply_send_msg_to_bot = function(message) {
+var handle_reply_send_msg_to_coco = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
-  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_send_msg_to_bot.json"));
+
+  var reply = ssbot.newTextMessage(simpletext.what_msg_to_send);
+  var r1 = ssbot.newReply(simpletext.test_send_text_to_coco, postbacks.test_send_text_to_coco);
+  var r2 = ssbot.newReply(simpletext.test_send_file_to_coco, postbacks.test_send_file_to_coco);
+  var suggestions = ssbot.newSuggestions(r1, r2);
+  reply.RCSMessage.suggestedChipList = suggestions;
+
   ssbot.reply(message, reply, onResponse);
 }
 
-var handle_reply_receive_msg_from_bot = function(message) {
+var handle_reply_receive_msg_from_coco = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
-  var reply = JSON.parse(fs.readFileSync("res/json/text_handle_receive_msg_from_bot.json"));
+
+  var reply = ssbot.newTextMessage(simpletext.what_msg_to_receive);
+  var r1 = ssbot.newReply(simpletext.test_receive_short_text_from_coco, postbacks.test_receive_short_text_from_coco);
+  var r2 = ssbot.newReply(simpletext.test_receive_long_text_from_coco, postbacks.test_receive_long_text_from_coco);
+  var r3 = ssbot.newReply(simpletext.test_receive_image_from_coco, postbacks.test_receive_image_from_coco);
+  var r4 = ssbot.newReply(simpletext.test_receive_audio_from_coco, postbacks.test_receive_audio_from_coco);
+  var r5 = ssbot.newReply(simpletext.test_receive_video_from_coco, postbacks.test_receive_video_from_coco);
+  var suggestions = ssbot.newSuggestions(r1, r2, r3, r4, r5);
+  reply.RCSMessage.suggestedChipList = suggestions;
+  
   ssbot.reply(message, reply, onResponse);
 }
 
-var handle_reply_send_text_to_bot = function(message) {
+var handle_reply_send_text_to_coco = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
-  var reply = compose_simple_text(simpletext.send_text_to_bot);
+  var reply = ssbot.newTextMessage(simpletext.send_text_to_coco);
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -120,9 +148,14 @@ var handle_test_read_receipt = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);  
   var reply;
   if (message.RCSMessage.textMessage.length < 1024) {
-    reply = JSON.parse(fs.readFileSync("res/json/text_handle_test_read_receipt.json"));
+    reply = ssbot.newTextMessage(simpletext.test_read_receipt);
+    var r1 = ssbot.newReply(simpletext.test_send_text_to_coco, postbacks.test_send_text_to_coco);
+    var r2 = ssbot.newReply(simpletext.test_send_file_to_coco, postbacks.test_send_file_to_coco);
+    var r3 = chips.start_over;
+    var suggestions = ssbot.newSuggestions(r1, r2, r3);
+    reply.RCSMessage.suggestedChipList = suggestions;
   } else {
-    reply = compose_simple_text(simpletext.send_text_to_bot_too_long);
+    reply = ssbot.newTextMessage(simpletext.send_text_to_coco_too_long);
   }
   ssbot.reply(message, reply, onResponse);
 }
@@ -130,24 +163,29 @@ var handle_test_read_receipt = function(message) {
 var handle_test_no_read_receipt = function(message) {  
   var reply;
   if (message.RCSMessage.textMessage.length >= 1024) {
-    reply = JSON.parse(fs.readFileSync("res/json/text_handle_test_no_read_receipt.json"));
+    reply = ssbot.newTextMessage(simpletext.test_no_read_receipt);
+    var r1 = ssbot.newReply(simpletext.test_send_text_to_coco, postbacks.test_send_text_to_coco);
+    var r2 = ssbot.newReply(simpletext.test_send_file_to_coco, postbacks.test_send_file_to_coco);
+    var r3 = chips.start_over;
+    var suggestions = ssbot.newSuggestions(r1, r2, r3);
+    reply.RCSMessage.suggestedChipList = suggestions;
   } else {
-    reply = compose_simple_text(simpletext.send_text_to_bot_not_long_enough);
+    reply = ssbot.newTextMessage(simpletext.send_text_to_coco_not_long_enough);
   }
   ssbot.reply(message, reply, onResponse);
 }
 
-var handle_reply_send_file_to_bot = function(message) {
+var handle_reply_send_file_to_coco = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
-  var reply = compose_simple_text(simpletext.send_file_to_bot);
+  var reply = ssbot.newTextMessage(simpletext.select_file);
   ssbot.reply(message, reply, onResponse);
 }
 
-var handle_test_send_file_to_bot = function(message) {
+var handle_test_send_file_to_coco = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
-  var reply = compose_simple_text(simpletext.received_file);
+  var reply = ssbot.newTextMessage(simpletext.received_file);
   ssbot.reply(message, reply, onResponse);
   
   reply = {
@@ -156,62 +194,62 @@ var handle_test_send_file_to_bot = function(message) {
     }
   };
   
-  reply.RCSMessage.fileMessage = message.RCSMessage.fileMessage;  
-  //reply.RCSMessage.suggestedChipList = JSON.parse(fs.readFileSync("res/json/chip_reply_startover.json"));
+  reply.RCSMessage.fileMessage = message.RCSMessage.fileMessage;    
   ssbot.reply(message, reply, onResponse);
 }
 
-var handle_reply_receive_text_from_bot = function(message) {
+var handle_reply_receive_text_from_coco = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
   var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;  
   var ran;
-  if (pb == "reply_receive_short_text_from_bot") {
+  if (pb == postbacks.test_receive_short_text_from_coco) {
     ran = Math.floor(Math.random() * (512 - 1)) + 1;        
-  } else {
+  } else if (pb == postbacks.test_receive_long_text_from_coco) {
     ran = Math.floor(Math.random() * (1024 - 512)) + 512;    
   }
-  var reply = compose_simple_text("I am sending " + ran * 2 + " bytes text to you.");
+  var reply = ssbot.newTextMessage("I am sending " + ran * 2 + " bytes text to you.");
   ssbot.reply(message, reply, onResponse);
-  reply = compose_simple_text(crypto.randomBytes(ran).toString('hex'));
+  reply = ssbot.newTextMessage(crypto.randomBytes(ran).toString('hex'));
   ssbot.reply(message, reply, onResponse);
 }
 
-var handle_reply_receive_file_from_bot = function(message) {
+var handle_reply_receive_file_from_coco = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
   var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;  
   
   var reply; 
-  if (pb == "reply_receive_image_from_bot") {
-    reply = compose_simple_text(simpletext.receive_image_file);
+  if (pb == postbacks.test_receive_image_from_coco) {
+    reply = ssbot.newTextMessage(simpletext.receive_image_file);
     ssbot.reply(message, reply, onResponse);
-    reply = JSON.parse(fs.readFileSync("res/json/file_image.json"));         
-  } else if (pb == "reply_receive_audio_from_bot") {
-    reply = compose_simple_text(simpletext.receive_audio_file);
+    reply = ssbot.newFileMessageByObject(files.image_coco); 
+    //reply = JSON.parse(fs.readFileSync("res/json/file_image.json"));         
+  } else if (pb == postbacks.test_receive_audio_from_coco) {
+    reply = ssbot.newTextMessage(simpletext.receive_audio_file);
     ssbot.reply(message, reply, onResponse);
-    reply = JSON.parse(fs.readFileSync("res/json/file_audio.json"));         
-  } else if (pb == "reply_receive_video_from_bot") {
-    reply = compose_simple_text(simpletext.receive_video_file);
+    reply = ssbot.newFileMessageByObject(files.audio_coco);          
+  } else if (pb == postbacks.test_receive_video_from_coco) {
+    reply = ssbot.newTextMessage(simpletext.receive_video_file);
     ssbot.reply(message, reply, onResponse);
-    reply = JSON.parse(fs.readFileSync("res/json/file_video.json"));         
+    reply = ssbot.newFileMessageByObject(files.video_coco);          
   }
   
   ssbot.reply(message, reply, onResponse);
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 
 ssbot.handle(['reply_start_over'], 'postback', handle_reply_start_over);
-ssbot.handle(['reply_advance'], 'postback', handle_reply_advance);
-ssbot.handle(['reply_10776'], 'postback', handle_reply_10776);
+ssbot.handle(['reply_test_advanced'], 'postback', handle_reply_advanced);
+ssbot.handle(['reply_test_10776'], 'postback', handle_reply_10776);
 ssbot.handle(['reply_bot_interaction'], 'postback', handle_reply_bot_interaction);
-ssbot.handle(['reply_send_msg_to_bot'], 'postback', handle_reply_send_msg_to_bot);
-ssbot.handle(['reply_send_text_to_bot'], 'postback', handle_reply_send_text_to_bot);
+ssbot.handle(['reply_send_msg_to_coco'], 'postback', handle_reply_send_msg_to_coco);
+ssbot.handle(['reply_send_text_to_coco'], 'postback', handle_reply_send_text_to_coco);
 ssbot.handle(['10776 read receipt'], 'textMessage', handle_test_read_receipt);
 ssbot.handle(['10776 no read receipt'], 'textMessage', handle_test_no_read_receipt);
-ssbot.handle(['reply_send_file_to_bot'], 'postback', handle_reply_send_file_to_bot);
-ssbot.handle(['reply_receive_msg_from_bot'], 'postback', handle_reply_receive_msg_from_bot);
-ssbot.handle(['reply_receive_short_text_from_bot', 'reply_receive_long_text_from_bot'], 'postback', handle_reply_receive_text_from_bot);
-ssbot.handle(['reply_receive_image_from_bot', 'reply_receive_audio_from_bot', 'reply_receive_video_from_bot'], 'postback', handle_reply_receive_file_from_bot);
+ssbot.handle(['reply_send_file_to_coco'], 'postback', handle_reply_send_file_to_coco);
+ssbot.handle(['reply_receive_msg_from_coco'], 'postback', handle_reply_receive_msg_from_coco);
+ssbot.handle(['reply_receive_short_text_from_coco', 'reply_receive_long_text_from_coco'], 'postback', handle_reply_receive_text_from_coco);
+ssbot.handle(['reply_receive_image_from_coco', 'reply_receive_audio_from_coco', 'reply_receive_video_from_coco'], 'postback', handle_reply_receive_file_from_coco);
 
 var onResponse = function (err, res, body) {
   if (err) {

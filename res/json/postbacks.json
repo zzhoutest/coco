@@ -1,0 +1,19 @@
+{
+    "test_10776": "reply_test_10776",
+    "test_advanced": "reply_test_advanced",
+    "test_message": "reply_test_message",
+    "test_richcard_adv": "reply_test_richcard_adv",
+    "test_api": "reply_test_api",
+    "test_bot_interaction": "reply_bot_interaction",
+    "test_richcard_10776": "reply_richcard_10776",
+    "test_chiplist": "reply_richcard",
+    "test_send_msg_to_coco": "reply_send_msg_to_coco",
+    "test_receive_msg_from_coco": "reply_receive_msg_from_coco",
+    "test_send_text_to_coco": "reply_send_text_to_coco",
+    "test_send_file_to_coco": "reply_send_file_to_coco",
+    "test_receive_short_text_from_coco": "reply_receive_short_text_from_coco",
+    "test_receive_long_text_from_coco": "reply_receive_long_text_from_coco",
+    "test_receive_image_from_coco": "reply_receive_image_from_coco",
+    "test_receive_audio_from_coco": "reply_receive_audio_from_coco",
+    "test_receive_video_from_coco": "reply_receive_video_from_coco"
+}

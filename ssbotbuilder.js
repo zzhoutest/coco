@@ -395,6 +395,75 @@ ssBotBuilder.prototype.handle = function(keywords, event, cb) {
   events[event].push(matches_pair);
 }
 
+ssBotBuilder.prototype.newTextMessage = function(text) {
+  var msg = {
+    "RCSMessage": {}
+  };
+  msg.RCSMessage.textMessage = text;
+  return msg;
+}
+
+ssBotBuilder.prototype.newFileMessageMini = function(fileUrl) {
+  var msg = {
+    "RCSMessage": {}
+  };
+  var fm = {};
+  fm.fileUrl = fileUrl;
+  msg.RCSMessage.fileMessage = fm;
+  return msg;
+}
+
+ssBotBuilder.prototype.newFileMessageByObject = function(fileMessage) {
+  var msg = {
+    "RCSMessage": {}
+  };
+  msg.RCSMessage.fileMessage = fileMessage;
+  return msg;
+}
+
+ssBotBuilder.prototype.newFileMessage = function(thumbnailFileName, thumbnailUrl, thumbnailMIMEType, thumbnailFileSize, fileName, fileUrl, fileMIMEType, fileSize) {
+  var msg = {
+    "RCSMessage": {}
+  };
+  var fm = {};
+  fm.thumbnailFileName = thumbnailFileName;
+  fm.thumbnailUrl = thumbnailUrl;
+  fm.thumbnailMIMEType = thumbnailMIMEType;
+  fm.thumbnailFileSize = thumbnailFileSize;
+  fm.fileName = fileName;
+  fm.fileUrl = fileUrl;
+  fm.fileMIMEType = fileMIMEType;
+  fm.fileSize = fileSize;
+  msg.RCSMessage.fileMessage = fm;
+  return msg;
+}
+
+ssBotBuilder.prototype.newReply = function(displayText, postback) {
+  var re = {
+    "reply": {}  
+  };
+  re.reply.displayText = displayText.substring(0,25);
+  if (postback) {
+    re.reply.postback = {};
+    re.reply.postback.data = postback.substring(0, 2048);
+  }
+  return re;
+}
+
+ssBotBuilder.prototype.newSuggestions = function() {
+  var i, array = [];
+  for (i = 0; i < arguments.length; i++) {
+    array.push(arguments[i]);
+  }
+  var obj = {
+    "suggestions": {}
+  }
+  obj.suggestions = array;
+  return obj;
+}
+
+
+
 /*Private API to routeMessages*/
 var configureServiceRoute = function(webserver) {
   // Handle CORS
