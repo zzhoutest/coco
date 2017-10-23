@@ -6,10 +6,10 @@
     "test_advanced": "Advanced Functions",
     "what_to_test": "OK, please tell me what you want to test.",
     "test_message": "Message",
-    "test_richcard": "Rich Card",
+    "test_richcard_10776": "Rich Card",
     "test_api": "API",
     "test_bot_interaction": "Bot Interaction",    
-    "test_chiplist": "Chip List",
+    "test_chiplist_10776": "Chip List",
     "test_send_msg_to_coco": "Send message to CoCo",
     "test_receive_msg_from_coco": "Receive message from CoCo",
     
@@ -75,5 +75,6 @@
     "test_composeRecordingMessage_action": "Compose Recording Message",
     "test_requestDeviceSpecifics_action": "Request Device Specifics",
     "test_disableAnonymization_action": "Disable Anonymization",
-    "test_enableDisplayedNotifications_action": "Enable Displayed Notifications"
+    "test_enableDisplayedNotifications_action": "Enable Displayed Notifications",
+    "test_chiplist_10776_with_text": "This is a text message with suggested chip list, and please report the issue if you don't see the suggested chip list."
 }

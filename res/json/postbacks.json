@@ -7,7 +7,7 @@
     "test_api": "reply_test_api",
     "test_bot_interaction": "reply_bot_interaction",
     "test_richcard_10776": "reply_richcard_10776",
-    "test_chiplist": "reply_chiplist_10776",
+    "test_chiplist_10776": "reply_chiplist_10776",
 
     "test_send_msg_to_coco": "reply_send_msg_to_coco",
     "test_receive_msg_from_coco": "reply_receive_msg_from_coco",

@@ -6,5 +6,18 @@
                 "data": "reply_start_over"
             }
         }
+    },
+    "open_url": {
+        "action": {
+            "urlAction": {
+              "openUrl": {
+                "url": "https://en.wikipedia.org/wiki/Maltese_dog"
+              }
+            },
+            "displayText": "Open website",
+            "postback": {
+              "data": "reply_openUrl_action"
+            }
+        } 
     }               
 }
