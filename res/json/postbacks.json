@@ -36,6 +36,8 @@
     "test_compose_action": "reply_compose_action",
     "test_device_action": "reply_device_action",
     "test_settings_action": "reply_settings_action",
+    "test_chiplist_learn": "reply_learnmore_action",
+    "test_chiplist_back": "reply_back_to_chiplist_10776",
     "test_text_with_chiplist": "reply_text_with_chiplist",
     "test_file_with_chiplist": "reply_file_with_chiplist",
     "test_richcard_with_chiplist": "reply_richcard_with_chiplist",
@@ -48,7 +50,8 @@
     "test_requestLocationPush_action": "reply_requestLocationPush_action",
     "test_createCalendarEvent_action": "reply_createCalendarEvent_action",
     "test_composeTextMessage_action": "reply_composeTextMessage_action",
-    "test_composeRecordingMessage_action": "reply_composeRecordingMessage_action",
+    "test_composeRecordingMessageVideo_action": "reply_composeRecordingVideoMessage_action",
+    "test_composeRecordingMessageAudio_action": "reply_composeRecordingAudioMessage_action",
     "test_requestDeviceSpecifics_action": "reply_requestDeviceSpecifics_action",
     "test_disableAnonymization_action": "reply_disableAnonymization_action",
     "test_enableDisplayedNotifications_action": "reply_enableDisplayedNotifications_action"

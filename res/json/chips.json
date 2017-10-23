@@ -19,5 +19,184 @@
               "data": "reply_openUrl_action"
             }
         } 
+    },
+    "dial_PhoneNumber": {
+        "action": {
+            "dialerAction": {
+              "dialPhoneNumber": {
+                "phoneNumber": "+18773409024"
+              },
+              "fallbackUrl": ""
+            },
+            "displayText": "Call a phone number",
+            "postback": {
+              "data": "reply_dialPhoneNumber_action"
+            }
+        } 
+    },
+    "dial_EnrichedCall": {
+        "action": {
+            "dialerAction": {
+              "dialEnrichedCall": {
+                "phoneNumber": "+18773409024"
+              },
+              "subject": "The optional subject for the enriched call",
+              "fallbackUrl": ""
+            },
+            "displayText": "Start enriched call",
+            "postback": {
+              "data": "reply_dialEnrichedCall_action"
+            }
+        } 
+    },
+    "dial_VideoCall": {
+        "action": {
+            "dialerAction": {
+              "dialVideoCall": {
+                "phoneNumber": "+18773409024"
+              },
+              "fallbackUrl": ""
+            },
+            "displayText": "Start video call",
+            "postback": {
+              "data": "reply_dialVideoCall_action"
+            }
+        } 
+    },
+    "show_Location": {
+        "action": {
+            "mapAction": {
+              "showLocation": {
+                "location": {
+                    "latitude":"37.4220041",
+                    "longitude":"-122.0862515",
+                    "label":"Googleplex"
+                },
+                "fallbackUrl": "https://www.google.com/maps/@37.4219162,-122.078063,15z"
+              }
+            },
+            "displayText": "Show location on a map",
+            "postback": {
+              "data": "reply_showLocation_action"
+            }
+        } 
+    },
+    "show_Location_with_Query": {
+        "action": {
+            "mapAction": {
+              "showLocation": {
+                "location": {
+                    "query":"restaurants"
+                },
+                "fallbackUrl": "https://www.google.com/maps/search/restaurants"
+              }
+            },
+            "displayText": "Search location(s) on map",
+            "postback": {
+              "data": "reply_showLocationWithQuery_action"
+            }
+        } 
+    },
+    "request_Location_Push": {
+        "action": {
+            "mapAction": {
+              "requestLocationPush": {}
+            },
+            "displayText": "Request share your location",
+            "postback": {
+              "data": "reply_requestLocationPush_action"
+            }
+        } 
+    },
+    "create_Calendar_Event": {
+        "action": {
+            "calendarAction": {
+                "createCalendarEvent": {
+                    "startTime": "2017-12-25T00:00:00Z",
+                    "endTime": "2017-12-25T23:59:59Z",
+                    "title": "Party",
+                    "description": "Christmas Party"
+                }
+            },
+            "displayText": "Schedule an event",
+            "postback": {
+              "data": "reply_createCalendarEvent_action"
+            }
+        } 
+    },
+    "compose_Text_Message": {
+        "action": {
+            "composeAction": {
+                "composeTextMessage": {
+                    "phoneNumber": "+1650253000",
+                    "text": "Draft to go into the send message text field."         
+                }
+            },
+            "displayText": "Draft a text message",
+            "postback": {
+              "data": "reply_composeTextMessage_action"
+            }
+        } 
+    },
+    "compose_Recording_Video_Message": {
+        "action": {
+            "composeAction": {
+                "composeRecordingMessage": {
+                    "phoneNumber": "+1650253000",
+                    "type": "VIDEO"
+                }
+            },
+            "displayText": "Record video and send",
+            "postback": {
+              "data": "reply_composeRecordingVideoMessage_action"
+            }
+        } 
+    },
+    "compose_Recording_Audio_Message": {
+        "action": {
+            "composeAction": {
+                "composeRecordingMessage": {
+                    "phoneNumber": "+1650253000",
+                    "type": "AUDIO"
+                }
+            },
+            "displayText": "Record audio and send",
+            "postback": {
+              "data": "reply_composeRecordingAudioMessage_action"
+            }
+        } 
+    },
+    "request_Device_Specifics": {
+        "action": {
+            "deviceAction": {
+                "requestDeviceSpecifics": {}
+            },
+            "displayText": "Request device specifics",
+            "postback": {
+              "data": "reply_requestDeviceSpecifics_action"
+            }
+        } 
+    },
+    "disable_Anonymization": {
+        "action": {
+            "settingsAction": {
+                "disableAnonymization": {}
+            },
+            "displayText": "Request sharing your phone number",
+            "postback": {
+              "data": "reply_disableAnonymization_action"
+            }
+        } 
+    },
+    "enable_Displayed_Notifications": {
+        "action": {
+            "settingsAction": {
+                "enableDisplayedNotifications": {}
+            },
+            "displayText": "Request sending read receipts",
+            "postback": {
+              "data": "reply_enableDisplayedNotifications_action"
+            }
+        } 
     }               
 }

@@ -353,8 +353,9 @@ var handle_reply_chiplist_10776 = function(message) {
   var r1 = ssbot.newReply(simpletext.test_text_with_chiplist, postbacks.test_text_with_chiplist);
   var r2 = ssbot.newReply(simpletext.test_file_with_chiplist, postbacks.test_file_with_chiplist);
   var r3 = ssbot.newReply(simpletext.test_richcard_with_chiplist, postbacks.test_richcard_with_chiplist);
+  var r4 = ssbot.newReply(simpletext.test_chiplist_learn, postbacks.test_chiplist_learn);
   
-  var suggestions = ssbot.newSuggestions(r1, r2, r3);
+  var suggestions = ssbot.newSuggestions(r1, r2, r3, r4);
   reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
 
   ssbot.reply(message, reply, onResponse);
@@ -367,15 +368,22 @@ var handle_reply_select_message_type_with_chiplist = function(message) {
   var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;
   var type = "?type="+ message.RCSMessage.suggestedResponse.response.reply.displayText;
   
-  var reply = ssbot.newTextMessage(simpletext.what_action_type_chiplist);
-  var r1 = ssbot.newReply(simpletext.test_url_action, postbacks.test_url_action+type);
-  var r2 = ssbot.newReply(simpletext.test_dialer_action, postbacks.test_dialer_action+type);
-  var r3 = ssbot.newReply(simpletext.test_map_action, postbacks.test_map_action+type);
-  var r4 = ssbot.newReply(simpletext.test_calendar_action, postbacks.test_calendar_action+type);
-  var r5 = ssbot.newReply(simpletext.test_compose_action, postbacks.test_compose_action+type);
-  var r6 = ssbot.newReply(simpletext.test_device_action, postbacks.test_device_action+type);
-  var r7 = ssbot.newReply(simpletext.test_settings_action, postbacks.test_settings_action+type);
-  var suggestions = ssbot.newSuggestions(r1, r2, r3, r4, r5, r6, r7);
+  var reply, suggestions;
+  if (pb == postbacks.test_chiplist_learn) {
+    reply = ssbot.newTextMessage(simpletext.chip_list_basic);
+    var r1 = ssbot.newReply(simpletext.test_chiplist_back, postbacks.test_chiplist_back);
+    suggestions = ssbot.newSuggestions(r1);
+  } else {
+    reply = ssbot.newTextMessage(simpletext.what_action_type_chiplist);
+    var r1 = ssbot.newReply(simpletext.test_url_action, postbacks.test_url_action+type);
+    var r2 = ssbot.newReply(simpletext.test_dialer_action, postbacks.test_dialer_action+type);
+    var r3 = ssbot.newReply(simpletext.test_map_action, postbacks.test_map_action+type);
+    var r4 = ssbot.newReply(simpletext.test_calendar_action, postbacks.test_calendar_action+type);
+    var r5 = ssbot.newReply(simpletext.test_compose_action, postbacks.test_compose_action+type);
+    var r6 = ssbot.newReply(simpletext.test_device_action, postbacks.test_device_action+type);
+    var r7 = ssbot.newReply(simpletext.test_settings_action, postbacks.test_settings_action+type);
+    suggestions = ssbot.newSuggestions(r1, r2, r3, r4, r5, r6, r7);
+  }
   reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
 
   ssbot.reply(message, reply, onResponse);
@@ -386,12 +394,33 @@ var handle_reply_select_action_type_chiplist = function(message) {
   ssbot.typing(message.messageContact, "active", onResponse);
   
   var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;  
+  if (pb == postbacks.test_chiplist_back) {
+    handle_reply_chiplist_10776(message);
+    return;
+  }
+  
   var type = pb.substring(pb.indexOf("=") + 1);
   pb = pb.substring(0, pb.indexOf("?"));
 
   var reply;
   if (type == simpletext.test_text_with_chiplist) {
-    reply = ssbot.newTextMessage(simpletext.test_chiplist_10776_with_text);
+    if (pb == postbacks.test_url_action) {
+      reply = ssbot.newTextMessage(simpletext.test_text_with_url_action_in_chiplist);
+    } else if (pb == postbacks.test_dialer_action) {
+      reply = ssbot.newTextMessage(simpletext.test_text_with_dialer_action_in_chiplist);
+    } else if (pb == postbacks.test_map_action) {
+      reply = ssbot.newTextMessage(simpletext.test_text_with_map_action_in_chiplist);
+    } else if (pb == postbacks.test_calendar_action) {
+      reply = ssbot.newTextMessage(simpletext.test_text_with_calendar_action_in_chiplist);
+    } else if (pb == postbacks.test_compose_action) {
+      reply = ssbot.newTextMessage(simpletext.test_text_with_compose_action_in_chiplist);
+    } else if (pb == postbacks.test_device_action) {
+      reply = ssbot.newTextMessage(simpletext.test_text_with_device_action_in_chiplist);
+    } else if (pb == postbacks.test_settings_action) {
+      reply = ssbot.newTextMessage(simpletext.test_text_with_settings_action_in_chiplist);
+    } else {
+      reply = ssbot.newTextMessage(simpletext.test_chiplist_10776_with_text);
+    }
   } else if (type == simpletext.test_file_with_chiplist) {
     reply = ssbot.newFileMessageByObject(files.image_coco);
   } else if (type == simpletext.test_richcard_with_chiplist) {
@@ -405,38 +434,39 @@ var handle_reply_select_action_type_chiplist = function(message) {
     reply = ssbot.newGeneralRichCard(layout, content);
   }
 
-  if (pb == postbacks.test_url_action) {
+  if (pb == postbacks.test_url_action) {    
     var r1 = chips.open_url;
     var suggestions = ssbot.newSuggestions(r1);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   } else if (pb == postbacks.test_dialer_action) {
-    var r1 = ssbot.newReply(simpletext.test_dialPhoneNumber_action, postbacks.test_dialPhoneNumber_action);
-    var r2 = ssbot.newReply(simpletext.test_dialEnrichedCall_action, postbacks.test_dialEnrichedCall_action);
-    var r3 = ssbot.newReply(simpletext.test_dialVideoCall_action, postbacks.test_dialVideoCall_action);
+    var r1 = chips.dial_PhoneNumber;
+    var r2 = chips.dial_EnrichedCall;
+    var r3 = chips.dial_VideoCall;
     var suggestions = ssbot.newSuggestions(r1, r2, r3);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   } else if (pb == postbacks.test_map_action) {
-    var r1 = ssbot.newReply(simpletext.test_showLocation_action, postbacks.test_showLocation_action);
-    var r2 = ssbot.newReply(simpletext.test_showLocationWithQuery_action, postbacks.test_showLocationWithQuery_action);
-    var r3 = ssbot.newReply(simpletext.test_requestLocationPush_action, postbacks.test_requestLocationPush_action);
+    var r1 = chips.show_Location;
+    var r2 = chips.show_Location_with_Query;
+    var r3 = chips.request_Location_Push;
     var suggestions = ssbot.newSuggestions(r1, r2, r3);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   } else if (pb == postbacks.test_calendar_action) {
-    var r1 = ssbot.newReply(simpletext.test_createCalendarEvent_action, postbacks.test_createCalendarEvent_action);    
+    var r1 = chips.create_Calendar_Event;
     var suggestions = ssbot.newSuggestions(r1);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   } else if (pb == postbacks.test_compose_action) {
-    var r1 = ssbot.newReply(simpletext.test_composeTextMessage_action, postbacks.test_composeTextMessage_action);
-    var r2 = ssbot.newReply(simpletext.test_composeRecordingMessage_action, postbacks.test_composeRecordingMessage_action);    
-    var suggestions = ssbot.newSuggestions(r1, r2);
+    var r1 = chips.compose_Text_Message;
+    var r2 = chips.compose_Recording_Video_Message;
+    var r3 = chips.compose_Recording_Audio_Message;
+    var suggestions = ssbot.newSuggestions(r1, r2, r3);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   } else if (pb == postbacks.test_device_action) {
-    var r1 = ssbot.newReply(simpletext.test_requestDeviceSpecifics_action, postbacks.test_requestDeviceSpecifics_action);    
+    var r1 = chips.request_Device_Specifics;
     var suggestions = ssbot.newSuggestions(r1);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   } else if (pb == postbacks.test_settings_action) {
-    var r1 = ssbot.newReply(simpletext.test_disableAnonymization_action, postbacks.test_disableAnonymization_action);
-    var r2 = ssbot.newReply(simpletext.test_enableDisplayedNotifications_action, postbacks.test_enableDisplayedNotifications_action);    
+    var r1 = chips.disable_Anonymization;
+    var r2 = chips.enable_Displayed_Notifications;
     var suggestions = ssbot.newSuggestions(r1, r2);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   } 
@@ -490,8 +520,8 @@ ssbot.handle(['reply_richcard_10776'], 'postback', handle_reply_richcard_10776);
 ssbot.handle(['reply_receive_image_richcard','reply_receive_audio_richcard','reply_receive_video_richcard','reply_receive_gif_richcard'], 'postback', handle_reply_select_richcard_media_type);
 ssbot.handle(['reply_receive_normal_richcard','reply_receive_no_thumbnail_richcard','reply_receive_broken_thumbnail_richcard','reply_receive_broken_file_richcard','reply_receive_all_broken_richcard'], 'postback', handle_reply_receive_richcard_from_coco);
 ssbot.handle(['reply_chiplist_10776'], 'postback', handle_reply_chiplist_10776);
-ssbot.handle(['reply_text_with_chiplist','reply_file_with_chiplist','reply_richcard_with_chiplist'], 'postback', handle_reply_select_message_type_with_chiplist);
-ssbot.handle(['reply_url_action','reply_dialer_action','reply_map_action','test_calendar_action','test_compose_action','test_device_action', 'test_settings_action'], 'postback', handle_reply_select_action_type_chiplist);
+ssbot.handle(['reply_text_with_chiplist','reply_file_with_chiplist','reply_richcard_with_chiplist','reply_learnmore_action'], 'postback', handle_reply_select_message_type_with_chiplist);
+ssbot.handle(['reply_url_action','reply_dialer_action','reply_map_action','reply_calendar_action','reply_compose_action','reply_device_action', 'reply_settings_action', 'reply_back_to_chiplist_10776'], 'postback', handle_reply_select_action_type_chiplist);
 //ssbot.handle(['test_openUrl_action','test_dialPhoneNumber_action','test_dialEnrichedCall_action','test_dialVideoCall_action','test_showLocation_action','test_showLocationWithQuery_action', 'test_requestLocationPush_action','test_createCalendarEvent_action','test_composeTextMessage_action','test_composeRecordingMessage_action','test_requestDeviceSpecifics_action','test_disableAnonymization_action','test_enableDisplayedNotifications_action'], 'postback', handle_reply_suggested_action_chiplist);
 
 var onResponse = function (err, res, body) {
