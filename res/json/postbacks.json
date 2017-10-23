@@ -7,7 +7,8 @@
     "test_api": "reply_test_api",
     "test_bot_interaction": "reply_bot_interaction",
     "test_richcard_10776": "reply_richcard_10776",
-    "test_chiplist": "reply_richcard",
+    "test_chiplist": "reply_chiplist_10776",
+
     "test_send_msg_to_coco": "reply_send_msg_to_coco",
     "test_receive_msg_from_coco": "reply_receive_msg_from_coco",
     "test_send_text_to_coco": "reply_send_text_to_coco",
@@ -17,6 +18,7 @@
     "test_receive_image_from_coco": "reply_receive_image_from_coco",
     "test_receive_audio_from_coco": "reply_receive_audio_from_coco",
     "test_receive_video_from_coco": "reply_receive_video_from_coco",
+    
     "test_receive_normal_richcard": "reply_receive_normal_richcard",
     "test_receive_no_thumbnail_richcard": "reply_receive_no_thumbnail_richcard",
     "test_receive_broken_thumbnail_richcard": "reply_receive_broken_thumbnail_richcard",
@@ -25,5 +27,29 @@
     "test_receive_image_richcard": "reply_receive_image_richcard",
     "test_receive_audio_richcard": "reply_receive_audio_richcard",
     "test_receive_video_richcard": "reply_receive_video_richcard",
-    "test_receive_gif_richcard": "reply_receive_gif_richcard"
+    "test_receive_gif_richcard": "reply_receive_gif_richcard",
+    
+    "test_url_action": "reply_url_action",
+    "test_dialer_action": "reply_dialer_action",
+    "test_map_action": "reply_map_action",
+    "test_calendar_action": "reply_calendar_action",
+    "test_compose_action": "reply_compose_action",
+    "test_device_action": "reply_device_action",
+    "test_settings_action": "reply_settings_action",
+    "test_text_with_chiplist": "reply_text_with_chiplist",
+    "test_file_with_chiplist": "reply_file_with_chiplist",
+    "test_richcard_with_chiplist": "reply_richcard_with_chiplist",
+    "test_openUrl_action": "reply_openUrl_action",
+    "test_dialPhoneNumber_action": "reply_dialPhoneNumber_action",
+    "test_dialEnrichedCall_action": "reply_dialEnrichedCall_action",
+    "test_dialVideoCall_action": "reply_dialVideoCall_action",
+    "test_showLocation_action": "reply_showLocation_action",
+    "test_showLocationWithQuery_action": "reply_showLocationWithQuery_action",
+    "test_requestLocationPush_action": "reply_requestLocationPush_action",
+    "test_createCalendarEvent_action": "reply_createCalendarEvent_action",
+    "test_composeTextMessage_action": "reply_composeTextMessage_action",
+    "test_composeRecordingMessage_action": "reply_composeRecordingMessage_action",
+    "test_requestDeviceSpecifics_action": "reply_requestDeviceSpecifics_action",
+    "test_disableAnonymization_action": "reply_disableAnonymization_action",
+    "test_enableDisplayedNotifications_action": "reply_enableDisplayedNotifications_action"
 }
