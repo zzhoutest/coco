@@ -6,10 +6,11 @@
     "test_advanced": "Advanced Functions",
     "what_to_test": "OK, please tell me what you want to test.",
     "test_message": "Message",
-    "test_richcard_10776": "Rich Card",
+    "test_richcard_adv": "Rich Card",
     "test_api": "API",
     "test_bot_interaction": "Bot Interaction",    
     "test_chiplist_10776": "Chip List",
+    "test_richcard_10776": "Rich Card",
     "test_send_msg_to_coco": "Send message to CoCo",
     "test_receive_msg_from_coco": "Receive message from CoCo",
     

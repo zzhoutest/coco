@@ -75,7 +75,7 @@ var handle_reply_advanced = function (message) {
   
   var reply = ssbot.newTextMessage(simpletext.what_to_test);
   var r1 = ssbot.newReply(simpletext.test_message, postbacks.test_message);
-  var r2 = ssbot.newReply(simpletext.test_richcard, postbacks.test_richcard_adv);
+  var r2 = ssbot.newReply(simpletext.test_richcard_adv, postbacks.test_richcard_adv);
   var r3 = ssbot.newReply(simpletext.test_api, postbacks.test_api);
   var suggestions = ssbot.newSuggestions(r1, r2, r3);
   reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
@@ -214,7 +214,7 @@ var handle_reply_receive_text_from_coco = function(message) {
     //ran = Math.floor(Math.random() * (1024 - 512)) + 512;    
     str = generateRandomString(512, 1024);
   }
-  var reply = ssbot.newTextMessage("I am sending " + ran * 2 + " bytes text to you.");
+  var reply = ssbot.newTextMessage("I am sending " + str.length + " bytes text to you.");
   ssbot.reply(message, reply, onResponse);
   reply = ssbot.newTextMessage(str);
   ssbot.reply(message, reply, onResponse);
@@ -366,7 +366,8 @@ var handle_reply_select_message_type_with_chiplist = function(message) {
   ssbot.typing(message.messageContact, "active", onResponse);
 
   var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;
-  var type = "?type="+ message.RCSMessage.suggestedResponse.response.reply.displayText;
+  var dt = message.RCSMessage.suggestedResponse.response.reply.displayText;
+  var type = "?type=" + dt; 
   
   var reply, suggestions;
   if (pb == postbacks.test_chiplist_learn) {
@@ -374,7 +375,20 @@ var handle_reply_select_message_type_with_chiplist = function(message) {
     var r1 = ssbot.newReply(simpletext.test_chiplist_back, postbacks.test_chiplist_back);
     suggestions = ssbot.newSuggestions(r1);
   } else {
-    reply = ssbot.newTextMessage(simpletext.what_action_type_chiplist);
+    if (dt == simpletext.test_text_with_chiplist) {
+      reply = ssbot.newTextMessage(simpletext.what_action_type_chiplist);
+    } else if (dt == simpletext.test_file_with_chiplist) {
+      reply = ssbot.newFileMessageByObject(files.image_coco);
+    } else if (dt == simpletext.test_richcard_with_chiplist) {
+      var layout, content, media, title, description;
+      layout = layouts.general_vertical;
+      title = "Rich Card Test";  
+      cardmedias = JSON.parse(fs.readFileSync("res/json/cardmedias.json"));
+      description = simpletext.normal_richcard;
+      media = cardmedias.image_coco_medium;
+      content = ssbot.newGeneralRichCardContent(media, title, description);    
+      reply = ssbot.newGeneralRichCard(layout, content);
+    }
     var r1 = ssbot.newReply(simpletext.test_url_action, postbacks.test_url_action+type);
     var r2 = ssbot.newReply(simpletext.test_dialer_action, postbacks.test_dialer_action+type);
     var r3 = ssbot.newReply(simpletext.test_map_action, postbacks.test_map_action+type);
