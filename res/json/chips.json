@@ -24,9 +24,9 @@
         "action": {
             "dialerAction": {
               "dialPhoneNumber": {
-                "phoneNumber": "+18773409024"
-              },
-              "fallbackUrl": ""
+                "phoneNumber": "+18773409024",
+                "fallbackUrl": "http://www.samsung.com/global/galaxy/apps/galaxy-apps/"
+              }              
             },
             "displayText": "Call a phone number",
             "postback": {
@@ -38,10 +38,10 @@
         "action": {
             "dialerAction": {
               "dialEnrichedCall": {
-                "phoneNumber": "+18773409024"
-              },
-              "subject": "The optional subject for the enriched call",
-              "fallbackUrl": ""
+                "phoneNumber": "+18773409024",
+                "subject": "The optional subject for the enriched call",
+                "fallbackUrl": "http://www.samsung.com/global/galaxy/apps/galaxy-apps/"
+              }              
             },
             "displayText": "Start enriched call",
             "postback": {
@@ -53,9 +53,9 @@
         "action": {
             "dialerAction": {
               "dialVideoCall": {
-                "phoneNumber": "+18773409024"
-              },
-              "fallbackUrl": ""
+                "phoneNumber": "+18773409024",
+                "fallbackUrl": "http://www.samsung.com/global/galaxy/apps/galaxy-apps/"
+              }              
             },
             "displayText": "Start video call",
             "postback": {
