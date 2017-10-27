@@ -11,6 +11,7 @@
     "test_bot_interaction": "Bot Interaction",    
     "test_chiplist_10776": "Chip List",
     "test_richcard_10776": "Rich Card",
+    "test_carousel_10776": "Carousel",
     "test_send_msg_to_coco": "Send message to CoCo",
     "test_receive_msg_from_coco": "Receive message from CoCo",
     
@@ -36,6 +37,9 @@
     "receive_audio_file": "I am sending an audio file to you. Please report the issue if you don't receive it after a while.",
     "receive_video_file": "I am sending a video file to you. Please report the issue if you don't receive it after a while.",
 
+    "richcard_basic": "This is not a test case but let you know the basic of a general purpose standalone rich card. A rich card may contain media, title, description, list of suggested replies, and list of suggested actions. At least one of media, title, or discription shall be included. Suggested replies shall always appear before suggested actions. The width of a standalone card will always be the same in both portrait and landscape mode for a given device. Standalone cards have a MIN_CARD_HEIGHT: 112 DP and MAX_CARD_HEIGHT: 344 DP. If the fields of a card are not large enough to fill the MIN_CARD_HEIGHT, then the card is expanded with white space at the bottom. If a card will exceed the MAX_CARD_HEIGHT, then the fields are truncated in the following order until it will not exceed MAX_CARD_HEIGHT: description → title → suggested actions (starting from the end of the list) → suggested replies (starting from the end of the list). A media file: image, GIF, video, or audio file, extends to the edges of the card on all sides, except for the bottom when there are other specified fields. If a card contains a media file and no other fields, then the media extends to all edges. For a standalone card or MEDIUM_WIDTH carousel card, the developer can choose one of three heights for the media: SHORT_HEIGHT: 112 DP, MEDIA_HEIGHT: 168 DP, TALL-HEIGHT: 264 DP. A standalone can choose to have its media file on the right side or left side when the card orientation is orizontal. In these cards, the displayed image should always be HORIZONTAL_LAYOUT_MEDIA_WIDTH: 128 DP. The title text wraps if it exceeds the width of the card. There is no line for the title text (up to 200 characters), although it can be truncated due to max card height constraints. The description text wraps if it exceeds the width of the card. There is no limit to how many lines of description text (up to 2000 characters). However, this is the first field to be truncated if the card exceeds the maximum total height. ",
+    "test_richcard_learn": "Learn more",
+    "test_richcard_back": "Back to test",
     "what_media_type_richcard": "What's the media type in the rich card?",
     "test_receive_normal_richcard": "Normal",
     "test_receive_no_thumbnail_richcard": "No Thumbnail",
@@ -52,7 +56,7 @@
     "test_receive_video_richcard": "Video",
     "test_receive_gif_richcard": "GIF",
 
-    "chip_list_basic": "This is not a test case but let you know the basic of the suggested chip list. Up to 11 chips allowed. Suggested replies shall always appear before suggested actions. Suggested chip list must not be shown if it is not associated the most recent message. Tapping on a suggested action shall not dismiss the entie suggested chip list. If certain actions are not supported by the operator, the cooresponding chip shall be greyed out or invisible. Thus there's a possibility that you will see less actions than what the Chatbot sends.",
+    "chip_list_basic": "This is not a test case but let you know the basic of the suggested chip list. Up to 11 chips allowed and each chip can be suggested reply or suggested action. Suggested replies shall always appear before suggested actions. The text label for a given suggested reply or action is truncated after a maximum of 25 characters. Suggested chip list must not be shown if it is not associated the most recent message. Tapping on a suggested action shall not dismiss the entie suggested chip list. If certain actions are not supported by the operator, the cooresponding chip shall be greyed out or invisible. Thus there's a possibility that you will see less actions than what the Chatbot sends. Tapping an image/GIF in a rich card opens the image/GIF in full-screen mode. Tapping a video or audio file plays the file. A client may provide an affordance to play a video or audio file inline vs. full screen.",
     "what_action_type_chiplist": "What type of suggested action do you want to test?",
     "what_message_type_chiplist": "What type of message with suggested chip list to do you want to test? I would suggest you to start with Text to get familar with each test case.",
     "test_url_action": "URL",
@@ -88,5 +92,18 @@
     "test_text_with_calendar_action_in_chiplist": "This is a text message with suggested chip list, and please report the issue if you don't see the suggested chip list. Calendar actions shall open the user's calendar app to the new event page, with start time, end time, title, and description pre-filled. I am sending 1 suggested action.",
     "test_text_with_compose_action_in_chiplist": "This is a text message with suggested chip list, and please report the issue if you don't see the suggested chip list. Message actions shall send message, text or audio/video, to a defined destination. For audio/video message, the recording interface shall be provided. I am sending 3 suggested actions.",
     "test_text_with_device_action_in_chiplist": "This is a text message with suggested chip list, and please report the issue if you don't see the suggested chip list. Device actions shall ask for the user' permission to send device status to the Chatbot. Status information includes device model, OS version, messaging client identifier and version, and remaining battery charge in minutes. The status information can be sent to the Chatbot, invisiblely, only after the user agrees each time. I am sending 1 suggested actions.",
-    "test_text_with_settings_action_in_chiplist": "This is a text message with suggested chip list, and please report the issue if you don't see the suggested chip list. Setting actions shall ask for the user' permission to share his/her MSISDN if the conversation is in anonymous mode, or enable providing read recipt for this conversation. These are settings related actions, so the user shall be directed to the settings screen. I am sending 2 suggested actions."
+    "test_text_with_settings_action_in_chiplist": "This is a text message with suggested chip list, and please report the issue if you don't see the suggested chip list. Setting actions shall ask for the user' permission to share his/her MSISDN if the conversation is in anonymous mode, or enable providing read recipt for this conversation. These are settings related actions, so the user shall be directed to the settings screen. I am sending 2 suggested actions.",
+
+    "carousel_basic": "This is not a test case but let you know the basic of the carousel. There must be at least 2 and up to 10 cards within a carousel. If more than 10 cards are sent within the same message, the client can either ignore the additional cards or it can choose to load them on an asynchronous basis, e.g. when the user begins scrolling. Suggested replies shall always appear before suggested actions. The developer chooses whether the cards in the carousel should have SMALL_WIDTH: 120 DP or MEDIUM_WIDTH: 232 DP. MEDIUM_WIDTH carousel cards have the same min and max heights as standalone cards. SMALL_WIDTH carousel cards have the same min height but a smaller max height: MAX_SMALL_WIDTH_CARD_HEIGHT: 224 DP. For a MEDIUM_WIDTH carousel card, the developer can choose one of three heights for the media: SHORT_HEIGHT: 112 DP, MEDIA_HEIGHT: 168 DP, TALL-HEIGHT: 264 DP. For a SMALL_WIDTH carousel card, the developer can choose only SHORT_HEIGHT and MEDIUM_HEIGHT. Within a carousel, the fields within all cards must be vertically aligned. This is accomplished through the following rules: All media files within the cards must have the same height. All title fields within the cards must have the same height, which is the height of the largest title text field. Title fields with fewer lines are padded with whitespace below the text to match the height of the largest title field. Description fields and suggested replies/actions follow the same logic as title fields for height matching.",
+    "test_carousel_learn": "Learn more",
+    "test_carousel_full": "Full carousel",
+    "test_carousel_back": "Back to test",
+    "test_carousel_card_url": "Carousel card with 1 URL action and 2 replies.",
+    "test_carousel_card_dialer": "Carousel card with 3 dialer actions and 2 replies.",
+    "test_carousel_card_map": "Carousel card with 3 map actions and 2 replies.",
+    "test_carousel_card_calendar": "Carousel card with 1 calendar action and 2 replies.",
+    "test_carousel_card_compose": "Carousel card with 3 compose actions and 2 replies.",
+    "test_carousel_card_device": "Carousel card with 1 device actions and 2 replies.",
+    "test_carousel_card_settings": "Carousel card with 2 settings actions and 2 replies.",
+    "test_carousel_card_none": "Carousel card with no action and 2 replies."
 }

@@ -530,7 +530,7 @@ ssBotBuilder.prototype.newGeneralRichCardContent = function(media, title, descri
     content.description = description.substring(0, 2000);
   }
   if (suggestions) {
-    content.suggestions = content.suggestions;
+    content.suggestions = suggestions;
   }
   return content;
 }
@@ -543,6 +543,36 @@ ssBotBuilder.prototype.newGeneralRichCard = function(layout, content) {
   }
   card.message.generalPurposeCard.layout = layout;
   card.message.generalPurposeCard.content = content;
+  var msg = {
+    "RCSMessage": {}
+  };
+  msg.RCSMessage.richcardMessage = card;
+  return msg;
+}
+
+ssBotBuilder.prototype.CARD_WIDTH_SMALL_WIDTH = "SMALL_WIDTH";
+ssBotBuilder.prototype.CARD_WIDTH_MEDIUM_WIDTH = "MEDIUM_WIDTH";
+
+ssBotBuilder.prototype.newGeneralCarouselContent = function() {
+  var i, content = [];
+  var len = arguments.length;
+  if (len > 10) {
+    len = 10;
+  }
+  for (i = 0; i < len; i++) {
+    content.push(arguments[i]);
+  }
+  return content;
+}
+
+ssBotBuilder.prototype.newGeneralCarousel = function(layout, content) {
+  var card = {
+    "message": {
+      "generalPurposeCardCarousel": {}
+    }
+  }
+  card.message.generalPurposeCardCarousel.layout = layout;
+  card.message.generalPurposeCardCarousel.content = content;
   var msg = {
     "RCSMessage": {}
   };
