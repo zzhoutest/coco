@@ -153,29 +153,29 @@ var handle_test_read_receipt = function(message) {
   var reply;
   if (message.RCSMessage.textMessage.length < 1024) {
     reply = ssbot.newTextMessage(simpletext.test_read_receipt);
-    var r1 = ssbot.newReply(simpletext.test_send_text_to_coco, postbacks.test_send_text_to_coco);
-    var r2 = ssbot.newReply(simpletext.test_send_file_to_coco, postbacks.test_send_file_to_coco);
-    var r3 = chips.start_over;
-    var suggestions = ssbot.newSuggestions(r1, r2, r3);
-    reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   } else {
     reply = ssbot.newTextMessage(simpletext.send_text_to_coco_too_long);
   }
+  var r1 = ssbot.newReply(simpletext.test_send_text_to_coco, postbacks.test_send_text_to_coco);
+  var r2 = ssbot.newReply(simpletext.test_send_file_to_coco, postbacks.test_send_file_to_coco);
+  var r3 = chips.start_over;
+  var suggestions = ssbot.newSuggestions(r1, r2, r3);
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   ssbot.reply(message, reply, onResponse);
 }
 
 var handle_test_no_read_receipt = function(message) {  
   var reply;
   if (message.RCSMessage.textMessage.length >= 1024) {
-    reply = ssbot.newTextMessage(simpletext.test_no_read_receipt);
-    var r1 = ssbot.newReply(simpletext.test_send_text_to_coco, postbacks.test_send_text_to_coco);
-    var r2 = ssbot.newReply(simpletext.test_send_file_to_coco, postbacks.test_send_file_to_coco);
-    var r3 = chips.start_over;
-    var suggestions = ssbot.newSuggestions(r1, r2, r3);
-    reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
+    reply = ssbot.newTextMessage(simpletext.test_no_read_receipt);    
   } else {
     reply = ssbot.newTextMessage(simpletext.send_text_to_coco_not_long_enough);
   }
+  var r1 = ssbot.newReply(simpletext.test_send_text_to_coco, postbacks.test_send_text_to_coco);
+  var r2 = ssbot.newReply(simpletext.test_send_file_to_coco, postbacks.test_send_file_to_coco);
+  var r3 = chips.start_over;
+  var suggestions = ssbot.newSuggestions(r1, r2, r3);
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -197,8 +197,14 @@ var handle_test_send_file_to_coco = function(message) {
       "fileMessage": "",      
     }
   };
-  
   reply.RCSMessage.fileMessage = message.RCSMessage.fileMessage;    
+
+  var r1 = ssbot.newReply(simpletext.test_send_text_to_coco, postbacks.test_send_text_to_coco);
+  var r2 = ssbot.newReply(simpletext.test_send_file_to_coco, postbacks.test_send_file_to_coco);
+  var r3 = chips.start_over;
+  var suggestions = ssbot.newSuggestions(r1, r2, r3);
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
+  
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -208,16 +214,24 @@ var handle_reply_receive_text_from_coco = function(message) {
   var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;  
   var ran;
   var str;
-  if (pb == postbacks.test_receive_short_text_from_coco) {
-    //ran = Math.floor(Math.random() * (512 - 1)) + 1;
+  if (pb == postbacks.test_receive_short_text_from_coco) {    
     str = generateRandomString(1, 512);        
-  } else if (pb == postbacks.test_receive_long_text_from_coco) {
-    //ran = Math.floor(Math.random() * (1024 - 512)) + 512;    
+  } else if (pb == postbacks.test_receive_long_text_from_coco) {        
     str = generateRandomString(512, 1024);
   }
-  var reply = ssbot.newTextMessage("I am sending " + str.length + " bytes text to you.");
+  var reply = ssbot.newTextMessage("I am sending " + str.length + " bytes text to you. \r\n\u26D4Please report the issue if you don't receive it.");
   ssbot.reply(message, reply, onResponse);
+
   reply = ssbot.newTextMessage(str);
+  var r1 = ssbot.newReply(simpletext.test_receive_short_text_from_coco, postbacks.test_receive_short_text_from_coco);
+  var r2 = ssbot.newReply(simpletext.test_receive_long_text_from_coco, postbacks.test_receive_long_text_from_coco);
+  var r3 = ssbot.newReply(simpletext.test_receive_image_from_coco, postbacks.test_receive_image_from_coco);
+  var r4 = ssbot.newReply(simpletext.test_receive_audio_from_coco, postbacks.test_receive_audio_from_coco);
+  var r5 = ssbot.newReply(simpletext.test_receive_video_from_coco, postbacks.test_receive_video_from_coco);
+  var r6 = chips.start_over;
+  var suggestions = ssbot.newSuggestions(r1, r2, r3, r4, r5, r6);
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
+
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -241,6 +255,15 @@ var handle_reply_receive_file_from_coco = function(message) {
     ssbot.reply(message, reply, onResponse);
     reply = ssbot.newFileMessageByObject(files.video_coco);          
   }
+  
+  var r1 = ssbot.newReply(simpletext.test_receive_short_text_from_coco, postbacks.test_receive_short_text_from_coco);
+  var r2 = ssbot.newReply(simpletext.test_receive_long_text_from_coco, postbacks.test_receive_long_text_from_coco);
+  var r3 = ssbot.newReply(simpletext.test_receive_image_from_coco, postbacks.test_receive_image_from_coco);
+  var r4 = ssbot.newReply(simpletext.test_receive_audio_from_coco, postbacks.test_receive_audio_from_coco);
+  var r5 = ssbot.newReply(simpletext.test_receive_video_from_coco, postbacks.test_receive_video_from_coco);
+  var r6 = chips.start_over;
+  var suggestions = ssbot.newSuggestions(r1, r2, r3, r4, r5, r6);
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   
   ssbot.reply(message, reply, onResponse);
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               

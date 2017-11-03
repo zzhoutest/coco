@@ -1,7 +1,7 @@
 {      
     "start_over": {
         "reply": {
-            "displayText": "Start Over",
+            "displayText": "\uD83D\uDDFDStart Over",
             "postback": {
                 "data": "reply_start_over"
             }
