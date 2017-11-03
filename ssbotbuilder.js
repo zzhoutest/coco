@@ -573,7 +573,7 @@ var configureServiceRoute = function(webserver) {
     console.log('receive from webhook: ' + JSON.stringify(obj));
     console.log("+++++++++++++++++++++++++++++++++++++++++++++");
     console.log("\r\n\n");
-    
+
     // TODO: Remove follow handling
     if (obj && obj.messageType && (obj.messageType.toLowerCase() == 'follow' || obj.messageType.toLowerCase() == 'unfollow')) {
       console.log('got a follow message');
@@ -701,30 +701,38 @@ var tokenManager = {
 
 var attemptrequest = function(opts, cb) {
     opts.callID = Math.floor(Math.random() * 1000);
-    
+    opts.timestamp = (new Date()).toISOString();
+    opts.contact = "";
+    if (opts.json && opts.json.messageContact) {
+      if (opts.json.messageContact.userContact) {
+        opts.contact = opts.json.messageContact.userContact;
+      } else {
+        opts.contact = opts.json.messageContact.chatId;
+      }
+    } 
+    opts.contact = "[" + opts.contact + "] ";
     var call = backoff.call(request, opts, function(err, res, body) {
       console.log("\r\n\n");
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-      console.log("callID: " + opts.callID);
-      console.log("url: " + opts.url);
-      console.log("method: " + opts.method);
-      console.log("request: " + JSON.stringify(opts.json));
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-
-      console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-      console.log("callID: " + opts.callID);
-      console.log("retries: " + call.getNumRetries());
+      console.log(opts.contact + ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+      console.log(opts.contact + "callID: " + opts.callID);
+      console.log(opts.contact + "request: " + opts.timestamp);
+      console.log(opts.contact + "url: " + opts.url);
+      console.log(opts.contact + "method: " + opts.method);      
+      console.log(opts.contact + JSON.stringify(opts.json));
+      console.log(opts.contact + "\r\n");
+      console.log(opts.contact + "response: " + (new Date()).toISOString());
+      console.log(opts.contact + "retries: " + call.getNumRetries());
       if (err) {
-        console.log("err: " + err.message);
+        console.log(opts.contact + "err: " + err.message);
       }
       if (res) {
-        console.log("statusCode: " + res.statusCode);
-        console.log("statusMessage: "+ res.statusMessage);
+        console.log(opts.contact + "statusCode: " + res.statusCode);
+        console.log(opts.contact + "statusMessage: "+ res.statusMessage);
       }
       if (body) {
-        console.log("response: " + JSON.stringify(body));
+        console.log(opts.contact + JSON.stringify(body));
       }
-      console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+      console.log(opts.contact + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
       console.log("\r\n\n");
 
       if (err) {
