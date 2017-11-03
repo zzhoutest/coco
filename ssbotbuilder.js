@@ -138,7 +138,6 @@ ssBotBuilder.prototype.listen = function(event, listener) {
   bot can upload local file or file url
 */
 ssBotBuilder.prototype.upload = function(fileObject, cb) {
-  console.log('---uploadFile---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
@@ -146,7 +145,7 @@ ssBotBuilder.prototype.upload = function(fileObject, cb) {
   }
   
   var message = {};
-  console.log('fileType: ' + fileObject.fileType + ' until: ' + fileObject.until + ' fileLocalPath: ' + fileObject.fileLocalPath + ' fileUrl: ' + fileObject.fileUrl);
+  //console.log('fileType: ' + fileObject.fileType + ' until: ' + fileObject.until + ' fileLocalPath: ' + fileObject.fileLocalPath + ' fileUrl: ' + fileObject.fileUrl);
   
   if (!fileObject.fileType || (!fileObject.fileLocalPath && !fileObject.fileUrl)) {
     cb && cb("missing mandatory values");
@@ -165,7 +164,6 @@ ssBotBuilder.prototype.upload = function(fileObject, cb) {
   }
 
   var uploadUrl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/files';
-  console.log("request url: " + uploadUrl);
 
   var clientOptions;
   if (fileObject.fileLocalPath) {
@@ -215,7 +213,6 @@ ssBotBuilder.prototype.upload = function(fileObject, cb) {
   the msg should be wrapped in a "RCSMessage" object
   */
 ssBotBuilder.prototype.reply = function(src, msg, cb) {
-  console.log('---reply---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
@@ -223,13 +220,11 @@ ssBotBuilder.prototype.reply = function(src, msg, cb) {
   }
   msg.messageContact = src.messageContact;
   var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages';
-  console.log('SENDING message with body' + JSON.stringify(msg));
   send(msg, requesturl, "POST", cb);
 };
 
 /*Interface API to send Unsolicited Message  to User*/
 ssBotBuilder.prototype.say = function(dest, msg, cb) {
-  console.log('---say---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
@@ -237,13 +232,11 @@ ssBotBuilder.prototype.say = function(dest, msg, cb) {
   }
   msg.messageContact = dest;
   var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages';
-  console.log('SENDING message with body' + JSON.stringify(msg));
   send(msg, requesturl, "POST", cb);
 };
 
 /*Interface API to send typing indication*/
 ssBotBuilder.prototype.typing = function(dest, value, cb) {
-  console.log('---typing---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
@@ -256,13 +249,11 @@ ssBotBuilder.prototype.typing = function(dest, value, cb) {
   };
   message.messageContact = dest;
   var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages';
-  console.log('SENDING message with body' + JSON.stringify(message));
   send(message, requesturl, "POST", cb);
 };
 
 /*Interface API to send read report*/
 ssBotBuilder.prototype.read = function (msgId, cb) {
-  console.log('---read---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
@@ -275,13 +266,11 @@ ssBotBuilder.prototype.read = function (msgId, cb) {
   };
   var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
     msgId + '/status';
-  console.log("request url is " + requesturl + " , message is: " + JSON.stringify(message));
   send(message, requesturl, "PUT", cb);
 };
 
 /*Interface API to send revoke*/
 ssBotBuilder.prototype.revoke = function (msgId, cb) {
-  console.log('---revoke---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
@@ -294,13 +283,11 @@ ssBotBuilder.prototype.revoke = function (msgId, cb) {
   };
   var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
     msgId + '/status';
-  console.log("request url is " + requesturl + " , message is: " + JSON.stringify(message));
   send(message, requesturl, "PUT", cb);
 };
 
 /*Interface API to get message status*/
 ssBotBuilder.prototype.msgstatus = function (msgId, cb) {
-  console.log('---get msg status---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
@@ -309,13 +296,11 @@ ssBotBuilder.prototype.msgstatus = function (msgId, cb) {
 
   var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/messages/' +
     msgId + '/status';
-  console.log("request url is " + requesturl);
   send(null, requesturl, "GET", cb);
 };
 
 /*Interface API to get uploaded file information*/
 ssBotBuilder.prototype.fileinfo = function (fileId, cb) {
-  console.log('---get file information---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
@@ -324,13 +309,11 @@ ssBotBuilder.prototype.fileinfo = function (fileId, cb) {
 
   var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/files/' +
     fileId;
-  console.log("request url is " + requesturl);
   send(null, requesturl, "GET", cb);
 };
 
 /*Interface API to delete uploaded file*/
 ssBotBuilder.prototype.deleteFile = function (fileId, cb) {
-  console.log('---delete file---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
@@ -339,13 +322,11 @@ ssBotBuilder.prototype.deleteFile = function (fileId, cb) {
 
   var requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/files/' +
     fileId;
-  console.log("request url is " + requesturl);
   send(null, requesturl, "DELETE", cb);
 };
 
 /*Interface API to query remote contact capability*/
 ssBotBuilder.prototype.capability = function (userContact, chatId, cb) {
-  console.log('---query capability---');
   if (!tokenState) {
     console.log("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
@@ -367,7 +348,6 @@ ssBotBuilder.prototype.capability = function (userContact, chatId, cb) {
   } else {
     requesturl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/contactCapabilities?chatId=' + chatId;
   }
-  console.log("request url is " + requesturl);
   send(null, requesturl, "GET", cb);
 };
 
@@ -588,8 +568,12 @@ var configureServiceRoute = function(webserver) {
   // logic to handle webhook POST
   webserver.post(configuration.serverconfig.webhook, cors(), function(req, res) {
     var obj = req.body;
-    console.log('POST MESSAGE:  ' + JSON.stringify(obj));
-
+    console.log("\r\n\n");
+    console.log("+++++++++++++++++++++++++++++++++++++++++++++");
+    console.log('receive from webhook: ' + JSON.stringify(obj));
+    console.log("+++++++++++++++++++++++++++++++++++++++++++++");
+    console.log("\r\n\n");
+    
     // TODO: Remove follow handling
     if (obj && obj.messageType && (obj.messageType.toLowerCase() == 'follow' || obj.messageType.toLowerCase() == 'unfollow')) {
       console.log('got a follow message');
@@ -716,13 +700,36 @@ var tokenManager = {
 }
 
 var attemptrequest = function(opts, cb) {
+    opts.callID = Math.floor(Math.random() * 1000);
+    
     var call = backoff.call(request, opts, function(err, res, body) {
-      console.log('Num retries: ' + call.getNumRetries() + ":" + err);
+      console.log("\r\n\n");
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+      console.log("callID: " + opts.callID);
+      console.log("url: " + opts.url);
+      console.log("method: " + opts.method);
+      console.log("request: " + JSON.stringify(opts.json));
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+      console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+      console.log("callID: " + opts.callID);
+      console.log("retries: " + call.getNumRetries());
       if (err) {
-          console.log('Error: ' + err.message);
+        console.log("err: " + err.message);
+      }
+      if (res) {
+        console.log("statusCode: " + res.statusCode);
+        console.log("statusMessage: "+ res.statusMessage);
+      }
+      if (body) {
+        console.log("response: " + JSON.stringify(body));
+      }
+      console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+      console.log("\r\n\n");
+
+      if (err) {
           cb(err, res);
       } else {
-          console.log('Status: ' + res.statusCode);
           cb(err, res, body);
       }
     });

@@ -19,7 +19,6 @@ ssbot.createService(options, function (err, webserver) {
 });
 
 var onWebhookMessage = function (message) {
-  console.log("+++webhook callback received+++\n" + JSON.stringify(message));
   var reply;  
   
   if (!message) {
@@ -662,14 +661,14 @@ ssbot.handle(['reply_learnmore_carousel','reply_full_carousel','reply_back_to_ca
 
 var onResponse = function (err, res, body) {
   if (err) {
-    console.log("err:"+err.message);
+    //console.log("err:"+err.message);
   }
   if (res) {
-    console.log("statusCode:"+res.statusCode);
-    console.log("statusMessage:"+res.statusMessage);
+    //console.log("statusCode:"+res.statusCode);
+    //console.log("statusMessage:"+res.statusMessage);
   }
   if (body) {
-    console.log("body:"+JSON.stringify(body));
+    //console.log("body:"+JSON.stringify(body));
   }
 }
 
