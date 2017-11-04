@@ -1,4 +1,5 @@
 require('log-timestamp');
+var log = require('loglevel');
 var ssbot = require('./ssbotbuilder.js');
 var fs = require("fs");
 var simpletext = require('./res/json/textlist.json');
@@ -9,6 +10,13 @@ var postbacks = require('./res/json/postbacks.json');
 var files = require('./res/json/files.json');
 var layouts = require('./res/json/layouts.json');
 var cardmedias = require('./res/json/cardmedias.json');
+
+// Set custom logging level for sdk modules ("TRACE", "DEBUG", "INFO", "WARN", "ERROR")
+log.getLogger("authtoken").setLevel("DEBUG");
+log.getLogger("ssbotbuilder").setLevel("DEBUG");
+
+// Set logging level for app
+log.setLevel("DEBUG");
 
 ssbot.createService(options, function (err, webserver) {
   if (!err) {
@@ -22,7 +30,7 @@ var onWebhookMessage = function (message) {
   var reply;  
   
   if (!message) {
-    console.log("!!!empty message!!!");
+    log.warn("!!!empty message!!!");
     return;
   }
 
@@ -674,9 +682,9 @@ var onResponse = function (err, res, body) {
 
 var onStateListener = function (state, reason) {
   if (!state) {
-    console.log('Cannot send any message all messages should be buffered now ' + reason);
+    log.error('Cannot send any message all messages should be buffered now ' + reason);
   } else {
-    console.log("Bot is working correctly");
+    log.info("Bot is working correctly");
   }
 }
 

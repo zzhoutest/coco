@@ -1,7 +1,7 @@
 {
-    "botID": "Hx0Skk7JQHW0gbr9UG0Ryw",
-    "accesstoken": "z0Zxoi-askNbEwNz3dfbxiY6Q4x62bDoJiM4ttwndNI",
-    "botservice": "pue1-maap1elb-apigw-1295337022.us-east-1.elb.amazonaws.com",
+    "botID": "TqyOxcScSdS8fa40PI9Adw",
+    "accesstoken": "7z8Nr3Akc2QTsh1khvcHxnXV6eWKA3C2i2IyZKSK5xg",
+    "botservice": "maap1elb-apigw-64929672.ap-northeast-2.elb.amazonaws.com",
     "apipath": "/bot/v1/",
     "clientconfig": {
       "scheme": "http",
@@ -9,7 +9,7 @@
     },
     "serverconfig": {
       "scheme": "http",                  
-      "port": 3201,       
-      "webhook": "/callback"
+      "port": 3001,       
+      "webhook": "/dev/default/coco/callback"
     }
 }

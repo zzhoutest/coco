@@ -1,8 +1,10 @@
+require('log-timestamp');
 var request = require('request');
 var express = require('express');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var backoff = require('backoff');
+var log = require('loglevel').getLogger("ssbotbuilder");
 var configuration;
 var Botwebserver;
 var events={};
@@ -10,7 +12,6 @@ var authtoken;
 var tokenState = false;
 var BotServiceAgent;
 var listeners = {};
-require('log-timestamp');
 
 /*Module Declaration*/
 var ssBotBuilder = function() {
@@ -18,9 +19,11 @@ var ssBotBuilder = function() {
 };
 
 /*Interface API to create WebServer*/
-ssBotBuilder.prototype.createService = function(config, callback) {
-  console.log('---configuration---');
+ssBotBuilder.prototype.createService = function(config, callback, customAuthImpl) {
   configuration = config;
+  // To Allow app to close server
+  var server;
+  log.debug('configuration: ', configuration);
 
   // process client config, and this is used for bot to communicate to bot platform
   if(config.hasOwnProperty("clientconfig")) {    
@@ -37,8 +40,7 @@ ssBotBuilder.prototype.createService = function(config, callback) {
     BotServiceAgent = new require('http').Agent({ keepAlive: true,maxSockets: configuration.clientconfig.connpoolsize });
   }
 
-  console.log('---client config---');
-  console.log(configuration.clientconfig);
+  log.debug('clientconfig: ', configuration.clientconfig);
 
   // process server config, and this is used of bot platform to communicate to bot
   if(config.hasOwnProperty("serverconfig")) {    
@@ -63,8 +65,7 @@ ssBotBuilder.prototype.createService = function(config, callback) {
     configuration.serverconfig.webhook = '/bot/message'; 
   }
 
-  console.log('---server config---');
-  console.log(configuration.serverconfig);
+  log.debug('serverconfig: ', configuration.serverconfig);
 
   Botwebserver = express();
   Botwebserver.use(bodyParser.json());
@@ -77,52 +78,61 @@ ssBotBuilder.prototype.createService = function(config, callback) {
     const https = require('https');
     const fs = require('fs');
     if (!fs.existsSync(configuration.serverconfig.key) || !fs.existsSync(configuration.serverconfig.cert)) {
-      console.log('certificate or key is not present at the specified path');
+      log.error('certificate or key is not present at the specified path');
       process.exit(1);
     }
     const options = {
       key: fs.readFileSync(configuration.serverconfig.key),
       cert: fs.readFileSync(configuration.serverconfig.cert)
     };
-    https.createServer(options, Botwebserver).listen(configuration.serverconfig.port, function() {
-      console.log('Bot is listening on port: ' + configuration.serverconfig.port);
+    server = https.createServer(options, Botwebserver);
+    server.listen(configuration.serverconfig.port, function() {
+      log.debug('Bot is listening on port: ' + configuration.serverconfig.port);
       if (callback) {
-        callback(null, Botwebserver);
+        callback(null, server);
       }
     }).on('error',
       function(err) {
         if (err.errno === 'EADDRINUSE') {
-          console.log('port is already in use');
+          log.error('port is already in use');
           process.exit(1);
         } else if (err.errno === 'EACCES') {
-          console.log('requires elevated privileges');
+          log.error('requires elevated privileges');
           process.exit(1);
         } else {
-          console.log(err);
+          log.error(err);
         }
       });
   } else {
-	  Botwebserver.listen(configuration.serverconfig.port, function() {
-    console.log('Bot is listening on port: ' + configuration.serverconfig.port);
+    const http = require('http');
+    server = http.createServer(Botwebserver);
+	  server.listen(configuration.serverconfig.port, function() {
+    log.debug('Bot is listening on port: ' + configuration.serverconfig.port);
     if (callback) {
-      callback(null, Botwebserver);
+      callback(null, server);
     }
   }).on('error',
     function(err) {
       if (err.errno === 'EADDRINUSE') {
-        console.log('port is already in use');
+        log.error('port is already in use');
         process.exit(1);
       } else if (err.errno === 'EACCES') {
-        console.log('requires elevated privileges');
+        log.error('requires elevated privileges');
         process.exit(1);
       } else {
-        console.log(err);
+        log.error(err);
       }
     });
   }
 
   configureServiceRoute(Botwebserver);
-  authtoken = require('./authtoken')(configuration.botID, configuration.accesstoken, configuration.botservice, configuration.clientconfig, tokenManager);
+  if(undefined == customAuthImpl){
+    authtoken = require('./authtoken')(configuration.botID, configuration.accesstoken, configuration.botservice, configuration.clientconfig, tokenManager);
+  }else{
+    // For custom Auth impl. Ready/Not Ready needs to be handled by app. No need to maintain tokenstate
+    tokenState = true;
+    authtoken = customAuthImpl;
+  }
   authtoken.fetchAccessToken();
 }
 
@@ -139,13 +149,13 @@ ssBotBuilder.prototype.listen = function(event, listener) {
 */
 ssBotBuilder.prototype.upload = function(fileObject, cb) {
   if (!tokenState) {
-    console.log("Bot Server is not in ready State");
+    log.error("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
     return;
   }
   
   var message = {};
-  //console.log('fileType: ' + fileObject.fileType + ' until: ' + fileObject.until + ' fileLocalPath: ' + fileObject.fileLocalPath + ' fileUrl: ' + fileObject.fileUrl);
+  //log.debug('fileType: ' + fileObject.fileType + ' until: ' + fileObject.until + ' fileLocalPath: ' + fileObject.fileLocalPath + ' fileUrl: ' + fileObject.fileUrl);
   
   if (!fileObject.fileType || (!fileObject.fileLocalPath && !fileObject.fileUrl)) {
     cb && cb("missing mandatory values");
@@ -160,7 +170,7 @@ ssBotBuilder.prototype.upload = function(fileObject, cb) {
   // if bot does not provide "until", set it as 30 days
   if (!fileObject.until) {
     var ms = new Date().getTime() + (86400000 * 30);
-    fileObject.until = new Date(ms);
+    fileObject.until = new Date(ms).toISOString();
   }
 
   var uploadUrl = configuration.clientconfig.scheme + '://' + configuration.botservice + configuration.apipath + configuration.botID + '/files';
@@ -173,8 +183,8 @@ ssBotBuilder.prototype.upload = function(fileObject, cb) {
       method: "POST",
       formData: {
         "fileType": fileObject.fileType,
-        "until": fileObject.until,
-        "fileContent": file
+        "fileContent": file,
+        "until":fileObject.until
       },
       headers: {
         "Authorization": "Bearer " + authtoken.getAccessToken(),
@@ -187,8 +197,8 @@ ssBotBuilder.prototype.upload = function(fileObject, cb) {
       method: "POST",
       formData: {
         "fileType": fileObject.fileType,
-        "until": fileObject.until,
-        "fileUrl": fileObject.fileUrl
+        "fileUrl": fileObject.fileUrl,
+        "until":fileObject.until
       },
       headers: {
         "Authorization": "Bearer " + authtoken.getAccessToken(),
@@ -214,7 +224,7 @@ ssBotBuilder.prototype.upload = function(fileObject, cb) {
   */
 ssBotBuilder.prototype.reply = function(src, msg, cb) {
   if (!tokenState) {
-    console.log("Bot Server is not in ready State");
+    log.error("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
     return ;
   }
@@ -226,7 +236,7 @@ ssBotBuilder.prototype.reply = function(src, msg, cb) {
 /*Interface API to send Unsolicited Message  to User*/
 ssBotBuilder.prototype.say = function(dest, msg, cb) {
   if (!tokenState) {
-    console.log("Bot Server is not in ready State");
+    log.error("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
     return ;
   }
@@ -238,7 +248,7 @@ ssBotBuilder.prototype.say = function(dest, msg, cb) {
 /*Interface API to send typing indication*/
 ssBotBuilder.prototype.typing = function(dest, value, cb) {
   if (!tokenState) {
-    console.log("Bot Server is not in ready State");
+    log.error("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
     return ;
   }
@@ -255,7 +265,7 @@ ssBotBuilder.prototype.typing = function(dest, value, cb) {
 /*Interface API to send read report*/
 ssBotBuilder.prototype.read = function (msgId, cb) {
   if (!tokenState) {
-    console.log("Bot Server is not in ready State");
+    log.error("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
     return;
   }
@@ -272,7 +282,7 @@ ssBotBuilder.prototype.read = function (msgId, cb) {
 /*Interface API to send revoke*/
 ssBotBuilder.prototype.revoke = function (msgId, cb) {
   if (!tokenState) {
-    console.log("Bot Server is not in ready State");
+    log.error("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
     return;
   }
@@ -289,7 +299,7 @@ ssBotBuilder.prototype.revoke = function (msgId, cb) {
 /*Interface API to get message status*/
 ssBotBuilder.prototype.msgstatus = function (msgId, cb) {
   if (!tokenState) {
-    console.log("Bot Server is not in ready State");
+    log.error("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
     return;
   }
@@ -302,7 +312,7 @@ ssBotBuilder.prototype.msgstatus = function (msgId, cb) {
 /*Interface API to get uploaded file information*/
 ssBotBuilder.prototype.fileinfo = function (fileId, cb) {
   if (!tokenState) {
-    console.log("Bot Server is not in ready State");
+    log.error("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
     return;
   }
@@ -315,7 +325,7 @@ ssBotBuilder.prototype.fileinfo = function (fileId, cb) {
 /*Interface API to delete uploaded file*/
 ssBotBuilder.prototype.deleteFile = function (fileId, cb) {
   if (!tokenState) {
-    console.log("Bot Server is not in ready State");
+    log.error("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
     return;
   }
@@ -328,17 +338,17 @@ ssBotBuilder.prototype.deleteFile = function (fileId, cb) {
 /*Interface API to query remote contact capability*/
 ssBotBuilder.prototype.capability = function (userContact, chatId, cb) {
   if (!tokenState) {
-    console.log("Bot Server is not in ready State");
+    log.error("Bot Server is not in ready State");
     cb && cb("Bot Server is not in ready State");
     return;
   }
   if (!userContact && !chatId) {
-    console.log("no contact");
+    log.error("no contact");
     cb && cb("no contact");
     return;
   }
   if (userContact && chatId) {
-    console.log("only one contact allowed");
+    log.error("only one contact allowed");
     cb && cb("only one contact allowed");
     return;
   }
@@ -356,7 +366,7 @@ ssBotBuilder.prototype.capability = function (userContact, chatId, cb) {
 'postback' (postback.data from suggested response*/
 ssBotBuilder.prototype.handle = function(keywords, event, cb) {
   if (!cb) {
-    console.log('Callback is null');
+    log.error('Callback is null');
     process.exit(1);
   }
   if (typeof(keywords) == 'string') {
@@ -364,7 +374,7 @@ ssBotBuilder.prototype.handle = function(keywords, event, cb) {
   }
   var regkeywords = [];
   if (!store_regexp(keywords, regkeywords)) {
-    console.log('Contains Invalid expression');
+    log.error('Contains Invalid expression');
     process.exit(1);
   }
   var matches_pair = {
@@ -375,6 +385,7 @@ ssBotBuilder.prototype.handle = function(keywords, event, cb) {
   events[event].push(matches_pair);
 }
 
+/* Interface API to create new RCSMessage object with text */
 ssBotBuilder.prototype.newTextMessage = function(text) {
   var msg = {
     "RCSMessage": {}
@@ -383,7 +394,8 @@ ssBotBuilder.prototype.newTextMessage = function(text) {
   return msg;
 }
 
-ssBotBuilder.prototype.newFileMessageMini = function(fileUrl) {
+/* Interface API to create new RCSMessage object with file url */
+ssBotBuilder.prototype.newFileMessageByUrl = function(fileUrl) {
   var msg = {
     "RCSMessage": {}
   };
@@ -393,6 +405,7 @@ ssBotBuilder.prototype.newFileMessageMini = function(fileUrl) {
   return msg;
 }
 
+/* Interface API to create new RCSMessage object with fileMessage */
 ssBotBuilder.prototype.newFileMessageByObject = function(fileMessage) {
   var msg = {
     "RCSMessage": {}
@@ -401,6 +414,7 @@ ssBotBuilder.prototype.newFileMessageByObject = function(fileMessage) {
   return msg;
 }
 
+/* Interface API to create new RCSMessage object with file info */
 ssBotBuilder.prototype.newFileMessage = function(thumbnailFileName, thumbnailUrl, thumbnailMIMEType, thumbnailFileSize, fileName, fileUrl, fileMIMEType, fileSize) {
   var msg = {
     "RCSMessage": {}
@@ -418,6 +432,7 @@ ssBotBuilder.prototype.newFileMessage = function(thumbnailFileName, thumbnailUrl
   return msg;
 }
 
+/* Interface API to create new suggested reply with displaytext and postback info*/
 ssBotBuilder.prototype.newReply = function(displayText, postback) {
   var re = {
     "reply": {}  
@@ -430,6 +445,7 @@ ssBotBuilder.prototype.newReply = function(displayText, postback) {
   return re;
 }
 
+/* Interface API to create new suggestions object with suggested replies and actions */
 ssBotBuilder.prototype.newSuggestions = function() {
   var i, suggestions = [];
   var len = arguments.length;
@@ -442,6 +458,7 @@ ssBotBuilder.prototype.newSuggestions = function() {
   return suggestions;
 }
 
+/* Interface API to create new chiplist object with suggested replies and actions */
 ssBotBuilder.prototype.newSuggestedChipList = function(suggestions) {
   var cl = {
     "suggestions": {}
@@ -455,6 +472,7 @@ ssBotBuilder.prototype.LAYOUT_ORIENTATION_HORIZONTAL = "HORIZONTAL";
 ssBotBuilder.prototype.IMAGE_ALIGNMENT_LEFT = "LEFT";
 ssBotBuilder.prototype.IMAGE_ALIGNMENT_RIGHT = "RIGHT";
 
+/* Interface API to create new RichCard Layout object with layout info */
 ssBotBuilder.prototype.newRichCardLayout = function(orientation, imageAlignment) {
   var layout = {};
   if (orientation == this.LAYOUT_ORIENTATION_VERTICAL || orientation == this.LAYOUT_ORIENTATION_HORIZONTAL) {
@@ -473,6 +491,7 @@ ssBotBuilder.prototype.MEDIA_HEIGHT_SHORT_HEIGHT = "SHORT_HEIGHT";
 ssBotBuilder.prototype.MEDIA_HEIGHT_MEDIUM_HEIGHT = "MEDIUM_HEIGHT";
 ssBotBuilder.prototype.MEDIA_HEIGHT_TALL_HEIGHT = "TALL_HEIGHT";
 
+/* Interface API to create new RichCard Media object with media info */
 ssBotBuilder.prototype.newRichCardMedia = function(mediaUrl, mediaContentType, mediaFileSize, height, thumbnailUrl, thumbnailContentType, thumbnailFileSize, contentDescription) {
   var media = {};
   media.mediaUrl = mediaUrl;
@@ -498,6 +517,7 @@ ssBotBuilder.prototype.newRichCardMedia = function(mediaUrl, mediaContentType, m
   return media;
 }
 
+/* Interface API to create new RichCard Content object with media, title, descriptions and suggestions info */
 ssBotBuilder.prototype.newGeneralRichCardContent = function(media, title, description, suggestions) {
   var content = {};
   if (media) {
@@ -515,6 +535,7 @@ ssBotBuilder.prototype.newGeneralRichCardContent = function(media, title, descri
   return content;
 }
 
+/* Interface API to create new generalPurposeCard object with layout and card content */
 ssBotBuilder.prototype.newGeneralRichCard = function(layout, content) {
   var card = {
     "message": {
@@ -533,6 +554,7 @@ ssBotBuilder.prototype.newGeneralRichCard = function(layout, content) {
 ssBotBuilder.prototype.CARD_WIDTH_SMALL_WIDTH = "SMALL_WIDTH";
 ssBotBuilder.prototype.CARD_WIDTH_MEDIUM_WIDTH = "MEDIUM_WIDTH";
 
+/* Interface API to create new carousel content */
 ssBotBuilder.prototype.newGeneralCarouselContent = function() {
   var i, content = [];
   var len = arguments.length;
@@ -545,6 +567,7 @@ ssBotBuilder.prototype.newGeneralCarouselContent = function() {
   return content;
 }
 
+/* Interface API to create new generalPurposeCardCarousel object */
 ssBotBuilder.prototype.newGeneralCarousel = function(layout, content) {
   var card = {
     "message": {
@@ -568,15 +591,15 @@ var configureServiceRoute = function(webserver) {
   // logic to handle webhook POST
   webserver.post(configuration.serverconfig.webhook, cors(), function(req, res) {
     var obj = req.body;
-    console.log("\r\n\n");
-    console.log("+++++++++++++++++++++++++++++++++++++++++++++");
-    console.log('receive from webhook: ' + JSON.stringify(obj));
-    console.log("+++++++++++++++++++++++++++++++++++++++++++++");
-    console.log("\r\n\n");
+    log.debug("\r\n\n");
+    log.debug("+++++++++++++++++++++++++++++++++++++++++++++");
+    log.debug('receive from webhook: ' + JSON.stringify(obj));
+    log.debug("+++++++++++++++++++++++++++++++++++++++++++++");
+    log.debug("\r\n\n");
 
     // TODO: Remove follow handling
     if (obj && obj.messageType && (obj.messageType.toLowerCase() == 'follow' || obj.messageType.toLowerCase() == 'unfollow')) {
-      console.log('got a follow message');
+      log.debug('got a follow message');
       var followMessage = {
         botID: obj.botID,
         botNumber: obj.botNumber
@@ -651,7 +674,7 @@ store_regexp = function(tests, regarr) {
       try {
         test = new RegExp(tests[t], 'gi');
       } catch (err) {
-        console.log('Error in Regular expression: ' + tests[t] + ': ' + err);
+        log.error('Error in Regular expression: ' + tests[t] + ': ' + err);
         return false;
       }
       if (!test) {
@@ -688,65 +711,72 @@ match_regexp = function(text, message, evt) {
 var tokenManager = {
   onNotReady: function() {
     tokenState = false ;
-    console.log('not ready now');
+    log.warn('not ready now');
     listeners['state'] && listeners['state'](false);
   },
   onReady: function() {
     tokenState = true;
-    console.log("ready indication: " + authtoken.getAccessToken());
+    log.warn("ready indication: " + authtoken.getAccessToken());
 
     listeners['state'] && listeners['state'](true);
   }
 }
 
-var attemptrequest = function(opts, cb) {
-    opts.callID = Math.floor(Math.random() * 1000);
-    opts.timestamp = (new Date()).toISOString();
-    opts.contact = "";
-    if (opts.json && opts.json.messageContact) {
-      if (opts.json.messageContact.userContact) {
-        opts.contact = opts.json.messageContact.userContact;
-      } else {
-        opts.contact = opts.json.messageContact.chatId;
-      }
-    } 
-    opts.contact = "[" + opts.contact + "] ";
-    var call = backoff.call(request, opts, function(err, res, body) {
-      console.log("\r\n\n");
-      console.log(opts.contact + ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-      console.log(opts.contact + "callID: " + opts.callID);
-      console.log(opts.contact + "request: " + opts.timestamp);
-      console.log(opts.contact + "url: " + opts.url);
-      console.log(opts.contact + "method: " + opts.method);      
-      console.log(opts.contact + JSON.stringify(opts.json));
-      console.log(opts.contact + "\r\n");
-      console.log(opts.contact + "response: " + (new Date()).toISOString());
-      console.log(opts.contact + "retries: " + call.getNumRetries());
+var attemptrequest = function (opts, cb) {
+  var expBackoff = backoff.exponential({
+    initialDelay: 1,
+    maxDelay: 1000
+  });
+  
+  opts.callID = Math.floor(Math.random() * 1000);
+  opts.timestamp = (new Date()).toISOString();
+  opts.contact = "";
+  if (opts.json && opts.json.messageContact) {
+    if (opts.json.messageContact.userContact) {
+      opts.contact = opts.json.messageContact.userContact;
+    } else {
+      opts.contact = opts.json.messageContact.chatId;
+    }
+  } 
+  opts.contact = "[" + opts.contact + "] ";
+  
+  expBackoff.on('ready', function (number, delay) {
+    log.debug('On backoff : ' + number + ' ' + delay + 'ms');
+    request(opts, function (err, res, body) {
+      log.debug("\r\n\n");
+      log.debug(opts.contact + ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+      log.debug(opts.contact + "callID: " + opts.callID);
+      log.debug(opts.contact + "request: " + opts.timestamp);
+      log.debug(opts.contact + "url: " + opts.url);
+      log.debug(opts.contact + "method: " + opts.method);      
+      log.debug(opts.contact + JSON.stringify(opts.json));
+      log.debug(opts.contact + "\r\n");
+      log.debug(opts.contact + "response: " + (new Date()).toISOString());
       if (err) {
-        console.log(opts.contact + "err: " + err.message);
+        log.debug(opts.contact + "err: " + err.message);
       }
       if (res) {
-        console.log(opts.contact + "statusCode: " + res.statusCode);
-        console.log(opts.contact + "statusMessage: "+ res.statusMessage);
+        log.debug(opts.contact + "statusCode: " + res.statusCode);
+        log.debug(opts.contact + "statusMessage: "+ res.statusMessage);
       }
       if (body) {
-        console.log(opts.contact + JSON.stringify(body));
+        log.debug(opts.contact + JSON.stringify(body));
       }
-      console.log(opts.contact + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-      console.log("\r\n\n");
-
-      if (err) {
-          cb(err, res);
+      log.debug(opts.contact + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+      log.debug("\r\n\n");
+      
+      if (res && (res.statusCode == 500 || res.statusCode == 502) && number < 10) {
+        log.debug('Response: ' + res.statusCode);
+        expBackoff.backoff();
       } else {
-          cb(err, res, body);
+        cb(err, res, body);
       }
-    });
+    })
+  });
 
-    call.retryIf(function(err) { return true; });
-    call.setStrategy(new backoff.ExponentialStrategy());
-    call.failAfter(10);
-    call.start();
+  expBackoff.backoff();
 }
+
 
 /*Private API to send Messages to Bot Service*/
 var send = function(msg, requesturl, method, cb) {

@@ -9,6 +9,7 @@
     "args": ["--color"],
     "log_date_format": "YYYY-MM-DD HH:mm",
     "out_file": "logs/coco.log",
+    "error_file": "logs/coco.error.log",	
     "env": {
       "options": {
         "botID": "otDmWxrJS4aRPYLQNrLLJg",
