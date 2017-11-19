@@ -315,7 +315,6 @@ var handle_reply_select_richcard_media_type = function(message) {
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   }
   
-
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -388,6 +387,16 @@ var handle_reply_receive_richcard_from_coco = function(message) {
   
   content = ssbot.newGeneralRichCardContent(media, title, description);    
   reply = ssbot.newGeneralRichCard(layout, content);
+
+  var r1 = ssbot.newReply(simpletext.test_receive_normal_richcard, postbacks.test_receive_normal_richcard+type);
+  var r2 = ssbot.newReply(simpletext.test_receive_no_thumbnail_richcard, postbacks.test_receive_no_thumbnail_richcard+type);
+  var r3 = ssbot.newReply(simpletext.test_receive_broken_thumbnail_richcard, postbacks.test_receive_broken_thumbnail_richcard+type);
+  var r4 = ssbot.newReply(simpletext.test_receive_broken_file_richcard, postbacks.test_receive_broken_file_richcard+type);
+  var r5 = ssbot.newReply(simpletext.test_receive_all_broken_richcard, postbacks.test_receive_all_broken_richcard+type);
+  var r6 = chips.start_over;
+  suggestions = ssbot.newSuggestions(r1, r2, r3, r4, r5, r6);
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
+
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -486,7 +495,7 @@ var handle_reply_select_action_type_chiplist = function(message) {
   } else if (type == simpletext.test_richcard_with_chiplist) {
     var layout, content, media, title, description;
     layout = layouts.general_vertical;
-    title = "Rich Card Test";  
+    title = "Suggested Chip List Test";  
     cardmedias = JSON.parse(fs.readFileSync("res/json/cardmedias.json"));
     description = simpletext.normal_richcard;
     media = cardmedias.image_coco_medium;
@@ -617,7 +626,7 @@ var handle_reply_select_test_full_carousel = function(message) {
 
     var s1 = ssbot.newSuggestions(r1, r2, a11);
     var s2 = ssbot.newSuggestions(r1, r2, a21, a22, a23);
-    var s3 = ssbot.newSuggestions(r1, r2, a31, a32, a33);
+    var s3 = ssbot.newSuggestions(r1, r2, a31, /*a32*/, a33);
     var s4 = ssbot.newSuggestions(r1, r2, a41);
     var s5 = ssbot.newSuggestions(r1, r2, a51, a52, a53);
     var s6 = ssbot.newSuggestions(r1, r2, a61);
