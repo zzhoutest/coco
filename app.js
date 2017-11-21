@@ -626,7 +626,7 @@ var handle_reply_select_test_full_carousel = function(message) {
 
     var s1 = ssbot.newSuggestions(r1, r2, a11);
     var s2 = ssbot.newSuggestions(r1, r2, a21, a22, a23);
-    var s3 = ssbot.newSuggestions(r1, r2, a31, /*a32*/, a33);
+    var s3 = ssbot.newSuggestions(r1, r2, a31, /*a32,*/ a33);
     var s4 = ssbot.newSuggestions(r1, r2, a41);
     var s5 = ssbot.newSuggestions(r1, r2, a51, a52, a53);
     var s6 = ssbot.newSuggestions(r1, r2, a61);
