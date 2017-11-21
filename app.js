@@ -262,6 +262,7 @@ var handle_reply_receive_file_from_coco = function(message) {
     ssbot.reply(message, reply, onResponse);
     reply = ssbot.newFileMessageByObject(files.video_coco);          
   }
+  ssbot.typing(message.messageContact, "active", onResponse);
   
   var r1 = ssbot.newReply(simpletext.test_receive_short_text_from_coco, postbacks.test_receive_short_text_from_coco);
   var r2 = ssbot.newReply(simpletext.test_receive_long_text_from_coco, postbacks.test_receive_long_text_from_coco);
@@ -384,10 +385,12 @@ var handle_reply_receive_richcard_from_coco = function(message) {
     str = media.mediaUrl; 
     media.mediaUrl = str.substring(0,10);          
   }
-  
+
+  ssbot.typing(message.messageContact, "active", onResponse);
   content = ssbot.newGeneralRichCardContent(media, title, description);    
   reply = ssbot.newGeneralRichCard(layout, content);
 
+  type = "?type=" + type;
   var r1 = ssbot.newReply(simpletext.test_receive_normal_richcard, postbacks.test_receive_normal_richcard+type);
   var r2 = ssbot.newReply(simpletext.test_receive_no_thumbnail_richcard, postbacks.test_receive_no_thumbnail_richcard+type);
   var r3 = ssbot.newReply(simpletext.test_receive_broken_thumbnail_richcard, postbacks.test_receive_broken_thumbnail_richcard+type);
