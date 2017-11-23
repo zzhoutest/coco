@@ -36,6 +36,7 @@ var onWebhookMessage = function (message) {
 
   if (message.event == "newUser") {
     reply = ssbot.newTextMessage(simpletext.hello);
+    ssbot.say(message.messageContact, reply, onResponse);
   } else if (message.event == "message") {
       handle_event_message(message);
   } else if (message.event == "response") {
@@ -263,7 +264,7 @@ var handle_reply_receive_file_from_coco = function(message) {
     reply = ssbot.newFileMessageByObject(files.video_coco);          
   }
   ssbot.typing(message.messageContact, "active", onResponse);
-  
+
   var r1 = ssbot.newReply(simpletext.test_receive_short_text_from_coco, postbacks.test_receive_short_text_from_coco);
   var r2 = ssbot.newReply(simpletext.test_receive_long_text_from_coco, postbacks.test_receive_long_text_from_coco);
   var r3 = ssbot.newReply(simpletext.test_receive_image_from_coco, postbacks.test_receive_image_from_coco);
@@ -313,9 +314,8 @@ var handle_reply_select_richcard_media_type = function(message) {
     var r4 = ssbot.newReply(simpletext.test_receive_broken_file_richcard, postbacks.test_receive_broken_file_richcard+type);
     var r5 = ssbot.newReply(simpletext.test_receive_all_broken_richcard, postbacks.test_receive_all_broken_richcard+type);
     suggestions = ssbot.newSuggestions(r1, r2, r3, r4, r5);
-    reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   }
-  
+  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   ssbot.reply(message, reply, onResponse);
 }
 
@@ -578,6 +578,9 @@ var handle_reply_select_test_full_carousel = function(message) {
     handle_reply_carousel_10776(message);
     return;
   } else if (pb == postbacks.test_carousel_full) {        
+    reply = ssbot.newTextMessage(simpletext.test_carousel_send_full);
+    ssbot.reply(message, reply, onResponse);
+
     cardmedias = JSON.parse(fs.readFileSync("res/json/cardmedias.json"));  
     
     var m1 = cardmedias.image_coco_medium;  
