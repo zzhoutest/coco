@@ -24,7 +24,7 @@
     "test_read_receipt": "I received your message starting with '10776 read receipt' and I sent both deliver and read receipt back. \r\n\n\u26D4Your message status should be 'Read' otherwise please report the issue. What kind of message do you want to send?",
     "test_no_read_receipt": "I received your message starting with '10776 no read receipt' and I sent only the deliver receipt back and did not send the read receipt. \r\n\n\u26D4Your message status should be 'Delivered' otherwise please report the issue. \r\nWhat kind of message do you want to send?",
     "select_file": "\uD83D\uDCCEPlease select and send a file to me and I will send it back to you.",
-    "received_file": "I am sending back the file I rceived. \r\n\u26D4You should see the exact file you sent to me otherwise please report the issue. What else do you want to test?",
+    "received_file": "I am sending back the file I rceived. \r\n\u26D4For image files, read receipt will be sent; for all other file types, only delivery report will be sent.\r\n\u26D4You should see the exact file you sent to me otherwise please report the issue. What else do you want to test?",
 
     "test_receive_short_text_from_coco": "\uD83D\uDC61Short Text",
     "test_receive_long_text_from_coco": "\uD83D\uDC62Long Text",

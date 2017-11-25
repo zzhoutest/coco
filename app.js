@@ -40,7 +40,11 @@ var onWebhookMessage = function (message) {
   } else if (message.event == "message") {
       handle_event_message(message);
   } else if (message.event == "response") {
+    if (message.RCSMessage.sharedData) {
+      handle_response_device_specifics(message);
+    } else {
       handle_reply_start_over(message);
+    }
   } else if (message.event == "isTyping") {
   } else if (message.event == "messageStatus") {
   } else if (message.event == "fileStatus") {
@@ -195,7 +199,10 @@ var handle_reply_send_file_to_coco = function(message) {
 }
 
 var handle_test_send_file_to_coco = function(message) {
-  ssbot.read(message.RCSMessage.msgId, onResponse);
+  var isImage = message.RCSMessage.fileMessage.fileMIMEType.includes("image");
+  if (isImage) {
+    ssbot.read(message.RCSMessage.msgId, onResponse);
+  }
   ssbot.typing(message.messageContact, "active", onResponse);
   var reply = ssbot.newTextMessage(simpletext.received_file);
   ssbot.reply(message, reply, onResponse);
@@ -632,7 +639,7 @@ var handle_reply_select_test_full_carousel = function(message) {
 
     var s1 = ssbot.newSuggestions(r1, r2, a11);
     var s2 = ssbot.newSuggestions(r1, r2, a21, a22, a23);
-    var s3 = ssbot.newSuggestions(r1, r2, a31, /*a32,*/ a33);
+    var s3 = ssbot.newSuggestions(r1, r2, a31, a32, a33);
     var s4 = ssbot.newSuggestions(r1, r2, a41);
     var s5 = ssbot.newSuggestions(r1, r2, a51, a52, a53);
     var s6 = ssbot.newSuggestions(r1, r2, a61);
@@ -660,6 +667,14 @@ var handle_reply_select_test_full_carousel = function(message) {
 
 }
 
+var handle_response_device_specifics = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);
+  ssbot.typing(message.messageContact, "active", onResponse);
+
+  var reply = ssbot.newTextMessage("I received this: " + message.RCSMessage.sharedData);
+
+  ssbot.reply(message, reply, onResponse);
+}
 
 ssbot.handle(['reply_start_over'], 'postback', handle_reply_start_over);
 ssbot.handle(['reply_test_advanced'], 'postback', handle_reply_advanced);
@@ -681,6 +696,7 @@ ssbot.handle(['reply_text_with_chiplist','reply_file_with_chiplist','reply_richc
 ssbot.handle(['reply_url_action','reply_dialer_action','reply_map_action','reply_calendar_action','reply_compose_action','reply_device_action', 'reply_settings_action', 'reply_back_to_chiplist_10776'], 'postback', handle_reply_select_action_type_chiplist);
 ssbot.handle(['reply_carousel_10776'], 'postback', handle_reply_carousel_10776);
 ssbot.handle(['reply_learnmore_carousel','reply_full_carousel','reply_back_to_carousel_10776'], 'postback', handle_reply_select_test_full_carousel);
+
 
 var onResponse = function (err, res, body) {
   if (err) {
