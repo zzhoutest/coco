@@ -1,15 +1,16 @@
 {
-    "botID": "TqyOxcScSdS8fa40PI9Adw",
-    "accesstoken": "7z8Nr3Akc2QTsh1khvcHxnXV6eWKA3C2i2IyZKSK5xg",
-    "botservice": "maap1elb-apigw-64929672.ap-northeast-2.elb.amazonaws.com",
+    "botID": "Hx0Skk7JQHW0gbr9UG0Ryw",
+    "accesstoken": "z0Zxoi-askNbEwNz3dfbxiY6Q4x62bDoJiM4ttwndNI",
+    "verificationtoken": "GWhzFbzcgix-KLqtogVwXWEjcsSkrjROtelP9XtYnw4",
+    "botservice": "botplatform.maaprcs.com",
     "apipath": "/bot/v1/",
     "clientconfig": {
-      "scheme": "http",
+      "scheme": "https",
       "connpoolsize": 10
     },
     "serverconfig": {
       "scheme": "http",                  
-      "port": 3001,       
-      "webhook": "/dev/default/coco/callback"
+      "port": 3201,       
+      "webhook": "/prod/sandbox/coco/callback"
     }
 }

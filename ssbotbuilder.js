@@ -37,7 +37,11 @@ ssBotBuilder.prototype.createService = function(config, callback, customAuthImpl
   }
 
   if(configuration.clientconfig.connpoolsize != null) {
-    BotServiceAgent = new require('http').Agent({ keepAlive: true,maxSockets: configuration.clientconfig.connpoolsize });
+    if(configuration.clientconfig.scheme == 'https') {
+      BotServiceAgent = new require('https').Agent({ keepAlive: true,maxSockets: configuration.clientconfig.connpoolsize });
+    } else {
+      BotServiceAgent = new require('http').Agent({ keepAlive: true,maxSockets: configuration.clientconfig.connpoolsize });
+    }
   }
 
   log.debug('clientconfig: ', configuration.clientconfig);
@@ -596,6 +600,13 @@ var configureServiceRoute = function(webserver) {
     log.debug('receive from webhook: ' + JSON.stringify(obj));
     log.debug("+++++++++++++++++++++++++++++++++++++++++++++");
     log.debug("\r\n\n");
+
+    var verificationToken = req.get('Authorization');
+    if (!verificationToken || verificationToken != configuration.verificationtoken) {
+      log.debug("verification token is not valid, unauthorized message");
+      res.status(401).send("unauthorized");
+      return;
+    }
 
     // TODO: Remove follow handling
     if (obj && obj.messageType && (obj.messageType.toLowerCase() == 'follow' || obj.messageType.toLowerCase() == 'unfollow')) {

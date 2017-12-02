@@ -38,7 +38,11 @@ function authtoken(botid, botsecret, botservice, authclientconfig, tokenmngr) {
   var timer = false;
   var BotServiceAgent;
   if(authclientconfig.connpoolsize != null) {
-    BotServiceAgent = new require('http').Agent({ keepAlive: true,maxSockets: authclientconfig.connpoolsize });
+    if(scheme == 'https') {
+      BotServiceAgent = new require('https').Agent({ keepAlive: true,maxSockets: authclientconfig.connpoolsize });
+    } else {
+      BotServiceAgent = new require('http').Agent({ keepAlive: true,maxSockets: authclientconfig.connpoolsize });
+    }
   }
   var authtoken = new machina.Fsm( {
     initialize : function(options) {
