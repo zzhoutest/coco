@@ -49,6 +49,17 @@
     "test_richcard_content_media_description": "reply_richcard_content_media_description",
     "test_richcard_content_title_reply": "reply_richcard_content_title_reply",
     "test_richcard_content_description_reply": "reply_richcard_content_description_reply",
+    "test_richcard_layout": "reply_richcard_layout",
+    "test_richcard_layout_width": "reply_richcard_layout_width",
+    "test_richcard_media": "reply_richcard_media",
+    "test_richcard_wrap": "reply_richcard_wrap",
+    "test_richcard_layout_height": "reply_richcard_layout_height",
+    "test_richcard_layout_height_min": "reply_richcard_layout_height_min",
+    "test_richcard_layout_height_max": "reply_richcard_layout_height_max",
+    "test_richcard_layout_height_description": "reply_richcard_layout_height_description",
+    "test_richcard_layout_height_title": "reply_richcard_layout_height_title",
+    "test_richcard_layout_height_action": "reply_richcard_layout_height_action",
+    "test_richcard_layout_height_reply": "reply_richcard_layout_height_reply",    
 
     "test_url_action": "reply_url_action",
     "test_dialer_action": "reply_dialer_action",
@@ -79,5 +90,9 @@
 
     "test_carousel_learn": "reply_learnmore_carousel",
     "test_carousel_full": "reply_full_carousel",
-    "test_carousel_back": "reply_back_to_carousel_10776"
+    "test_carousel_back": "reply_back_to_carousel_10776",
+    "test_carousel_layout": "reply_carousel_layout",
+    "test_carousel_layout_width": "reply_carousel_layout_width",
+    "test_carousel_layout_width_small": "reply_carousel_layout_width_small",
+    "test_carousel_layout_width_mid": "reply_carousel_layout_width_mid"
 }
