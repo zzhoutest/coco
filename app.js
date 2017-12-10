@@ -697,24 +697,85 @@ var handle_reply_richcard_adv = function(message) {
 var handle_reply_richcard_reply_action = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);  
   
-  var reply, layout, content, media, title, description;
-  
-  reply = ssbot.newTextMessage(simpletext.reply_action_order);
-  ssbot.reply(message, reply, onResponse);
+  var r0 = ssbot.newReply(simpletext.test_richcard_adv, postbacks.test_richcard_adv);
+  var r1 = ssbot.newReply(simpletext.test_richcard_reply_action, postbacks.test_richcard_reply_action);
+  var r2 = ssbot.newReply(simpletext.test_richcard_reply_action_order, postbacks.test_richcard_reply_action_order);  
+  var r3 = ssbot.newReply(simpletext.test_richcard_reply_action_char, postbacks.test_richcard_reply_action_char); 
+  var r4 = ssbot.newReply(simpletext.test_richcard_reply_action_11, postbacks.test_richcard_reply_action_11);  
+  var r5 = ssbot.newReply(simpletext.reply_action_char_26, postbacks.test_richcard_reply_action);
 
-  layout = layouts.general_vertical;
-  title = simpletext.test_richcard_reply_action;  
-  cardmedias = JSON.parse(fs.readFileSync("res/json/cardmedias.json"));
-  media = cardmedias.image_coco_medium;
-  description = simpletext.reply_action_order_issue;  
-  var r1 = ssbot.newReply(simpletext.test_richcard_adv, postbacks.test_richcard_adv);
   var a1 = chips.open_url;
-  var suggestions = ssbot.newSuggestions(a1, r1);
 
-  content = ssbot.newGeneralRichCardContent(media, title, description, suggestions);    
-  reply = ssbot.newGeneralRichCard(layout, content);
-    
-  reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
+  var reply, layout, content, media, title, description, suggestions;
+  var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;
+
+  if (pb == postbacks.test_richcard_reply_action) {
+    reply = ssbot.newTextMessage(simpletext.what_to_test);
+        
+    suggestions = ssbot.newSuggestions(r2, r3, r4);
+    reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);    
+  } else {
+      if (pb == postbacks.test_richcard_reply_action_order) {
+        reply = ssbot.newTextMessage(simpletext.reply_action_order);
+        ssbot.reply(message, reply, onResponse);
+
+        cardmedias = JSON.parse(fs.readFileSync("res/json/cardmedias.json"));
+        media = cardmedias.image_coco_medium;
+        title = simpletext.test_richcard_reply_action_order;  
+        description = simpletext.reply_action_order_issue;    
+        suggestions = ssbot.newSuggestions(a1, r1);
+        
+        layout = layouts.general_vertical;
+
+        content = ssbot.newGeneralRichCardContent(media, title, description, suggestions);    
+        reply = ssbot.newGeneralRichCard(layout, content);
+        
+        reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
+      } else if (pb == postbacks.test_richcard_reply_action_char) {
+        reply = ssbot.newTextMessage(simpletext.reply_action_char);
+        ssbot.reply(message, reply, onResponse);
+
+        cardmedias = JSON.parse(fs.readFileSync("res/json/cardmedias.json"));
+        media = cardmedias.image_coco_medium;
+        title = simpletext.test_richcard_reply_action_char;  
+        description = simpletext.reply_action_char_issue;    
+        suggestions = ssbot.newSuggestions(r5, r1);
+        
+        layout = layouts.general_vertical;
+
+        content = ssbot.newGeneralRichCardContent(media, title, description, suggestions);    
+        reply = ssbot.newGeneralRichCard(layout, content);
+        
+        reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
+      } else if (pb == postbacks.test_richcard_reply_action_11) {
+        reply = ssbot.newTextMessage(simpletext.reply_action_11);
+        ssbot.reply(message, reply, onResponse);
+
+        title = simpletext.test_richcard_reply_action_11;  
+        var s1 = ssbot.newReply("1", postbacks.test_richcard_reply_action);
+        var s2 = ssbot.newReply("2", postbacks.test_richcard_reply_action);
+        var s3 = ssbot.newReply("3", postbacks.test_richcard_reply_action);
+        var s4 = ssbot.newReply("4", postbacks.test_richcard_reply_action);
+        var s5 = ssbot.newReply("5", postbacks.test_richcard_reply_action);
+        var s6 = ssbot.newReply("6", postbacks.test_richcard_reply_action);
+        var s7 = ssbot.newReply("7", postbacks.test_richcard_reply_action);
+        var s8 = ssbot.newReply("8", postbacks.test_richcard_reply_action);
+        var s9 = ssbot.newReply("9", postbacks.test_richcard_reply_action);
+        var s10 = ssbot.newReply("10", postbacks.test_richcard_reply_action);
+        var s11 = ssbot.newReply("11", postbacks.test_richcard_reply_action);
+        var s12 = ssbot.newReply("12", postbacks.test_richcard_reply_action);
+
+        suggestions = ssbot.newSuggestions(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12);
+        
+        layout = layouts.general_vertical;
+
+        content = ssbot.newGeneralRichCardContent(media, title, description, suggestions);    
+        reply = ssbot.newGeneralRichCard(layout, content);
+
+        reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
+      } 
+  }  
+  
 
   ssbot.reply(message, reply, onResponse);
 }
@@ -722,17 +783,17 @@ var handle_reply_richcard_reply_action = function(message) {
 var handle_reply_richcard_orientation = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);  
   
-  var c1 = ssbot.newReply(simpletext.test_richcard_orientation_left, postbacks.test_richcard_orientation_left); 
-  var c2 = ssbot.newReply(simpletext.test_richcard_orientation_right, postbacks.test_richcard_orientation_right); 
-  var c3 = ssbot.newReply(simpletext.test_richcard_orientation_vertical, postbacks.test_richcard_orientation_vertical); 
-  var c4 = ssbot.newReply(simpletext.test_richcard_orientation, postbacks.test_richcard_orientation); 
+  var r1 = ssbot.newReply(simpletext.test_richcard_orientation_left, postbacks.test_richcard_orientation_left); 
+  var r2 = ssbot.newReply(simpletext.test_richcard_orientation_right, postbacks.test_richcard_orientation_right); 
+  var r3 = ssbot.newReply(simpletext.test_richcard_orientation_vertical, postbacks.test_richcard_orientation_vertical); 
+  var r4 = ssbot.newReply(simpletext.test_richcard_orientation, postbacks.test_richcard_orientation); 
 
   var reply, layout, content, media, title, description, suggestions;
   var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;
   if (pb == postbacks.test_richcard_orientation) {
     reply = ssbot.newTextMessage(simpletext.richcard_orientation);
         
-    suggestions = ssbot.newSuggestions(c1, c2, c3);
+    suggestions = ssbot.newSuggestions(r1, r2, r3);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);    
   } else {
     if (pb == postbacks.test_richcard_orientation_vertical) {
@@ -751,12 +812,12 @@ var handle_reply_richcard_orientation = function(message) {
     media = cardmedias.image_coco_medium;
     description = simpletext.richcard_orientation_issue;  
     
-    suggestions = ssbot.newSuggestions(c4);
+    suggestions = ssbot.newSuggestions(r4);
   
     content = ssbot.newGeneralRichCardContent(media, title, description, suggestions);    
     reply = ssbot.newGeneralRichCard(layout, content);
     
-    suggestions = ssbot.newSuggestions(c1, c2, c3, c4);
+    suggestions = ssbot.newSuggestions(r1, r2, r3, r4);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   }  
 
@@ -766,19 +827,19 @@ var handle_reply_richcard_orientation = function(message) {
 var handle_reply_richcard_content = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);  
   
-  var c1 = ssbot.newReply(simpletext.test_richcard_content_title, postbacks.test_richcard_content_title); 
-  var c2 = ssbot.newReply(simpletext.test_richcard_content_description, postbacks.test_richcard_content_description); 
-  var c3 = ssbot.newReply(simpletext.test_richcard_content_image, postbacks.test_richcard_content_image);  
-  var c4 = ssbot.newReply(simpletext.test_richcard_content_video, postbacks.test_richcard_content_video); 
-  var c5 = ssbot.newReply(simpletext.test_richcard_content_audio, postbacks.test_richcard_content_audio); 
-  var c6 = ssbot.newReply(simpletext.test_richcard_content_reply_action, postbacks.test_richcard_content_reply_action); 
-  var c7 = ssbot.newReply(simpletext.test_richcard_content_title_description, postbacks.test_richcard_content_title_description); 
-  var c8 = ssbot.newReply(simpletext.test_richcard_content_media_title, postbacks.test_richcard_content_media_title); 
-  var c9 = ssbot.newReply(simpletext.test_richcard_content_media_description, postbacks.test_richcard_content_media_description); 
-  var c10 = ssbot.newReply(simpletext.test_richcard_content_title_reply, postbacks.test_richcard_content_title_reply); 
-  var c11 = ssbot.newReply(simpletext.test_richcard_content_description_reply, postbacks.test_richcard_content_description_reply); 
+  var r1 = ssbot.newReply(simpletext.test_richcard_content_title, postbacks.test_richcard_content_title); 
+  var r2 = ssbot.newReply(simpletext.test_richcard_content_description, postbacks.test_richcard_content_description); 
+  var r3 = ssbot.newReply(simpletext.test_richcard_content_image, postbacks.test_richcard_content_image);  
+  var r4 = ssbot.newReply(simpletext.test_richcard_content_video, postbacks.test_richcard_content_video); 
+  var r5 = ssbot.newReply(simpletext.test_richcard_content_audio, postbacks.test_richcard_content_audio); 
+  var r6 = ssbot.newReply(simpletext.test_richcard_content_reply_action, postbacks.test_richcard_content_reply_action); 
+  var r7 = ssbot.newReply(simpletext.test_richcard_content_title_description, postbacks.test_richcard_content_title_description); 
+  var r8 = ssbot.newReply(simpletext.test_richcard_content_media_title, postbacks.test_richcard_content_media_title); 
+  var r9 = ssbot.newReply(simpletext.test_richcard_content_media_description, postbacks.test_richcard_content_media_description); 
+  var r10 = ssbot.newReply(simpletext.test_richcard_content_title_reply, postbacks.test_richcard_content_title_reply); 
+  var r11 = ssbot.newReply(simpletext.test_richcard_content_description_reply, postbacks.test_richcard_content_description_reply); 
   
-  var c0 = ssbot.newReply(simpletext.test_richcard_content, postbacks.test_richcard_content); 
+  var r0 = ssbot.newReply(simpletext.test_richcard_content, postbacks.test_richcard_content); 
   //var c = ssbot.newReply(simpletext.test_richcard_content_gif, postbacks.test_richcard_content_gif);
 
   var reply, layout, content, media, title, description, suggestions;
@@ -786,7 +847,7 @@ var handle_reply_richcard_content = function(message) {
   if (pb == postbacks.test_richcard_content) {
     reply = ssbot.newTextMessage(simpletext.richcard_content);
         
-    suggestions = ssbot.newSuggestions(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11);
+    suggestions = ssbot.newSuggestions(r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);    
   } else {
     if (pb == postbacks.test_richcard_content_title) {
@@ -808,7 +869,7 @@ var handle_reply_richcard_content = function(message) {
     } else if (pb == postbacks.test_richcard_content_reply_action) {
       reply = ssbot.newTextMessage(simpletext.richcard_content_issue_reply_action);
       ssbot.reply(message, reply, onResponse);
-      suggestions = ssbot.newSuggestions(c0);      
+      suggestions = ssbot.newSuggestions(r0);      
     } else if (pb == postbacks.test_richcard_content_title_description) {
       title = simpletext.test_richcard_content_title_description;
       description = simpletext.richcard_content_issue;      
@@ -822,10 +883,10 @@ var handle_reply_richcard_content = function(message) {
       media = cardmedias.image_coco_medium;      
     } else if (pb == postbacks.test_richcard_content_title_reply) {
       title = simpletext.test_richcard_content_title_description;
-      suggestions = ssbot.newSuggestions(c0);      
+      suggestions = ssbot.newSuggestions(r0);      
     } else if (pb == postbacks.test_richcard_content_description_reply) {
       description = simpletext.richcard_content_issue;
-      suggestions = ssbot.newSuggestions(c0);      
+      suggestions = ssbot.newSuggestions(r0);      
     } 
 
 
@@ -833,7 +894,7 @@ var handle_reply_richcard_content = function(message) {
     content = ssbot.newGeneralRichCardContent(media, title, description, suggestions);    
     reply = ssbot.newGeneralRichCard(layout, content);
     
-    suggestions = ssbot.newSuggestions(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11);
+    suggestions = ssbot.newSuggestions(r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
   }  
 
@@ -1297,7 +1358,7 @@ ssbot.handle(['reply_url_action','reply_dialer_action','reply_map_action','reply
 ssbot.handle(['reply_carousel_10776'], 'postback', handle_reply_carousel_10776);
 ssbot.handle(['reply_learnmore_carousel','reply_full_carousel','reply_back_to_carousel_10776'], 'postback', handle_reply_select_test_full_carousel);
 ssbot.handle(['reply_richcard_adv'], 'postback', handle_reply_richcard_adv);
-ssbot.handle(['reply_richcard_reply_action'], 'postback', handle_reply_richcard_reply_action);
+ssbot.handle(['reply_richcard_reply_action', 'reply_richcard_reply_action_order', 'reply_richcard_reply_action_char', 'reply_richcard_reply_action_11', 'reply_action_char_26'], 'postback', handle_reply_richcard_reply_action);
 ssbot.handle(['reply_richcard_orientation', 'reply_richcard_orientation_left', 'reply_richcard_orientation_right', 'reply_richcard_orientation_vertical'], 'postback', handle_reply_richcard_orientation);
 ssbot.handle(['reply_richcard_content', 'reply_richcard_content_title', 'reply_richcard_content_description', 'reply_richcard_content_image', 'reply_richcard_content_gif', 'reply_richcard_content_video', 'reply_richcard_content_audio', 'reply_richcard_content_reply_action', 'reply_richcard_content_title_description', 'reply_richcard_content_media_title', 'reply_richcard_content_media_description', 'reply_richcard_content_title_reply', 'reply_richcard_content_description_reply'], 'postback', handle_reply_richcard_content);
 ssbot.handle(['reply_richcard_layout', 'reply_richcard_layout_width', 'reply_richcard_layout_height', 'reply_richcard_layout_height_min', 'reply_richcard_layout_height_max', 'reply_richcard_layout_height_description', 'reply_richcard_layout_height_title', 'reply_richcard_layout_height_action', 'reply_richcard_layout_height_reply'], 'postback', handle_reply_richcard_layout);
