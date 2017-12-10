@@ -998,6 +998,55 @@ var handle_reply_richcard_media = function(message) {
   ssbot.reply(message, reply, onResponse);  
 }
 
+var handle_reply_richcard_wrap = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);  
+  
+  var r0 = ssbot.newReply(simpletext.test_richcard_adv, postbacks.test_richcard_adv);
+  var r1 = ssbot.newReply(simpletext.test_richcard_wrap, postbacks.test_richcard_wrap); 
+  var r2 = ssbot.newReply(simpletext.test_richcard_wrap_title, postbacks.test_richcard_wrap_title); 
+  var r3 = ssbot.newReply(simpletext.test_richcard_wrap_desc, postbacks.test_richcard_wrap_desc); 
+  var r4 = ssbot.newReply(simpletext.test_richcard_wrap_title_desc, postbacks.test_richcard_wrap_title_desc); 
+
+  var reply, layout, content, media, title, description, suggestions;
+  var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;
+
+  if (pb == postbacks.test_richcard_wrap) {
+    reply = ssbot.newTextMessage(simpletext.what_to_test);
+        
+    suggestions = ssbot.newSuggestions(r2, r3, r4);
+    reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);    
+  } else {
+    if (pb == postbacks.test_richcard_wrap_title) {
+      reply = ssbot.newTextMessage(simpletext.test_richcard_wrap_title_issue);
+      ssbot.reply(message, reply, onResponse);
+
+      title = simpletext.long_title_richcard;
+    } else if (pb == postbacks.test_richcard_wrap_desc) {
+      reply = ssbot.newTextMessage(simpletext.test_richcard_wrap_desc_issue);
+      ssbot.reply(message, reply, onResponse);
+
+      description = simpletext.long_desc_richcard;
+    } else if (pb == postbacks.test_richcard_wrap_title_desc) {
+      reply = ssbot.newTextMessage(simpletext.test_richcard_wrap_title_desc_issue );
+      ssbot.reply(message, reply, onResponse);
+      
+      title = simpletext.long_title_richcard;
+      description = simpletext.long_desc_richcard;
+    } 
+
+    layout = layouts.general_vertical;  
+    cardmedias = JSON.parse(fs.readFileSync("res/json/cardmedias.json"));
+  
+    content = ssbot.newGeneralRichCardContent(media, title, description, suggestions);    
+    reply = ssbot.newGeneralRichCard(layout, content);
+    
+    suggestions = ssbot.newSuggestions(r2, r3, r4, r0);
+    reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
+  }  
+
+  ssbot.reply(message, reply, onResponse);  
+}
+
 var handle_reply_carousel_adv = function(message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);  
 
@@ -1256,6 +1305,7 @@ ssbot.handle(['reply_carousel_adv'], 'postback', handle_reply_carousel_adv);
 ssbot.handle(['reply_carousel_layout', 'reply_carousel_layout_width', 'reply_carousel_layout_width_small', 'reply_carousel_layout_width_mid', 'reply_carousel_layout_height', 'reply_carousel_layout_height_min_small', 'reply_carousel_layout_height_min_mid', 'reply_carousel_layout_height_max_small', 'reply_carousel_layout_height_max_mid'], 'postback', handle_reply_carousel_layout);
 ssbot.handle(['reply_richcard_media', 'reply_richcard_media_edge', 'reply_richcard_media_edge_image', 'reply_richcard_media_edge_gif', 'reply_richcard_media_edge_video', 'reply_richcard_media_edge_audio', 'reply_richcard_media_height', 'reply_richcard_media_height_short', 'reply_richcard_media_height_mid', 'reply_richcard_media_height_tall'], 'postback', handle_reply_richcard_media);
 ssbot.handle(['reply_carousel_media', 'reply_carousel_media_height_small', 'reply_carousel_media_height_small_mid', 'reply_carousel_media_height_small_tall', 'reply_carousel_media_height_mid', 'reply_carousel_media_height_mid_short', 'reply_carousel_media_height_mid_mid', 'reply_carousel_media_height_mid_tall'], 'postback', handle_reply_carousel_media);
+ssbot.handle(['reply_richcard_wrap', 'reply_richcard_wrap_title', 'reply_richcard_wrap_desc', 'reply_richcard_wrap_title_desc'], 'postback', handle_reply_richcard_wrap);
 
 var onResponse = function (err, res, body) {
   if (err) {

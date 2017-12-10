@@ -68,7 +68,10 @@
     "test_richcard_media_height": "reply_richcard_media_height",
     "test_richcard_media_height_short": "reply_richcard_media_height_short",
     "test_richcard_media_height_mid": "reply_richcard_media_height_mid",
-    "test_richcard_media_height_tall": "reply_richcard_media_height_tall",    
+    "test_richcard_media_height_tall": "reply_richcard_media_height_tall",
+    "test_richcard_wrap_title": "reply_richcard_wrap_title",
+    "test_richcard_wrap_desc": "reply_richcard_wrap_desc",
+    "test_richcard_wrap_title_desc": "reply_richcard_wrap_title_desc",    
 
     "test_url_action": "reply_url_action",
     "test_dialer_action": "reply_dialer_action",
