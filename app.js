@@ -712,7 +712,7 @@ var handle_reply_richcard_reply_action = function(message) {
   if (pb == postbacks.test_richcard_reply_action) {
     reply = ssbot.newTextMessage(simpletext.what_to_test);
         
-    suggestions = ssbot.newSuggestions(r2, r3, r4);
+    suggestions = ssbot.newSuggestions(r2, r3, r4, r1);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);    
   } else {
       if (pb == postbacks.test_richcard_reply_action_order) {
@@ -1115,9 +1115,10 @@ var handle_reply_carousel_adv = function(message) {
   
   var r1 = ssbot.newReply(simpletext.test_carousel_layout, postbacks.test_carousel_layout);
   var r2 = ssbot.newReply(simpletext.test_carousel_media, postbacks.test_carousel_media);
+  var r3 = ssbot.newReply(simpletext.test_carousel_display, postbacks.test_carousel_display);
   
   
-  var suggestions = ssbot.newSuggestions(r1, r2);
+  var suggestions = ssbot.newSuggestions(r1, r2, r3);
   reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);
 
   ssbot.reply(message, reply, onResponse);
@@ -1337,6 +1338,79 @@ var handle_reply_carousel_media = function(message) {
   ssbot.reply(message, reply, onResponse);  
 }
 
+var handle_reply_carousel_display = function(message) {
+  ssbot.read(message.RCSMessage.msgId, onResponse);  
+  
+  var r0 = ssbot.newReply(simpletext.test_carousel_adv, postbacks.test_carousel_adv);
+  var r1 = ssbot.newReply(simpletext.test_carousel_display, postbacks.test_carousel_display);
+  var r2 = ssbot.newReply(simpletext.test_carousel_display_align, postbacks.test_carousel_display_align);
+  var r3 = ssbot.newReply(simpletext.test_carousel_display_number, postbacks.test_carousel_display_number);
+    
+  var reply, layout, content, media, title, description, suggestions, card;
+  cardmedias = JSON.parse(fs.readFileSync("res/json/cardmedias.json"));
+  
+  var m1 = cardmedias.image_coco_medium;  
+  var m2 = cardmedias.audio_coco_medium;
+  var m3 = cardmedias.video_coco_medium;
+  var m4 = cardmedias.gif_coco_medium;
+  
+  var t1 = "1 " + simpletext.test_receive_image_richcard;
+  t1 = t1 + t1 + t1 + t1;
+  var t2 = "2 " + simpletext.test_receive_audio_richcard;
+  t2 = t2 + t2 + t2;
+  var t3 = "3 " + simpletext.test_receive_video_richcard;
+  t3 = t3 + t3;
+  var t4 = "4 " + simpletext.test_receive_gif_richcard;
+
+  var d1 = simpletext.test_receive_image_richcard;
+  d1 = d1 + d1 + d1 + d1 + d1 + d1 + d1 + d1 + d1 + d1 + d1 + d1;
+  var d2 = simpletext.test_receive_audio_richcard;
+  d2 = d2 + d2 + d2 + d2 + d2 + d2 + d2 + d2;
+  var d3 = simpletext.test_receive_video_richcard;
+  d3 = d3 + d3 + d3 + d3;
+  var d4 = simpletext.test_receive_gif_richcard;
+
+  var s1 = ssbot.newSuggestions(r1, r2, r3);
+  var s2 = ssbot.newSuggestions(r2, r3);
+  var s3 = ssbot.newSuggestions(r1);
+  var s4;
+
+  var c1 = ssbot.newGeneralRichCardContent(m1, t1, d1, s1);
+  var c2 = ssbot.newGeneralRichCardContent(m2, t2, d2, s2);
+  var c3 = ssbot.newGeneralRichCardContent(m3, t3, d3, s3);
+  var c4 = ssbot.newGeneralRichCardContent(m4, t4, d4, s4);
+
+  layout = layouts.general_medium_width;
+   
+  var pb = message.RCSMessage.suggestedResponse.response.reply.postback.data;
+  if (pb == postbacks.test_carousel_display) {
+    reply = ssbot.newTextMessage(simpletext.what_to_test);
+        
+    suggestions = ssbot.newSuggestions(r2, r3);
+    reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);    
+  } else if (pb == postbacks.test_carousel_display_align) {
+    reply = ssbot.newTextMessage(simpletext.test_carousel_display_align_issue);
+    ssbot.reply(message, reply, onResponse);
+
+    content = ssbot.newGeneralCarouselContent(c1, c2, c3, c4);    
+    reply = ssbot.newGeneralCarousel(layout, content);
+
+    suggestions = ssbot.newSuggestions(r2, r3, r1, r0);
+    reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);    
+  } else if (pb == postbacks.test_carousel_display_number) {
+    reply = ssbot.newTextMessage(simpletext.test_carousel_display_number_issue);
+    ssbot.reply(message, reply, onResponse);
+
+    content = ssbot.newGeneralCarouselContent(c1, c2, c3, c4, c4, c3, c2, c1, c1, c2, c3, c4);    
+    reply = ssbot.newGeneralCarousel(layout, content);
+
+    suggestions = ssbot.newSuggestions(r2, r3, r1, r0);
+    reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);    
+  } 
+
+  ssbot.reply(message, reply, onResponse);  
+}
+
 ssbot.handle(['reply_start_over'], 'postback', handle_reply_start_over);
 ssbot.handle(['reply_test_advanced'], 'postback', handle_reply_advanced);
 ssbot.handle(['reply_test_10776'], 'postback', handle_reply_10776);
@@ -1367,6 +1441,7 @@ ssbot.handle(['reply_carousel_layout', 'reply_carousel_layout_width', 'reply_car
 ssbot.handle(['reply_richcard_media', 'reply_richcard_media_edge', 'reply_richcard_media_edge_image', 'reply_richcard_media_edge_gif', 'reply_richcard_media_edge_video', 'reply_richcard_media_edge_audio', 'reply_richcard_media_height', 'reply_richcard_media_height_short', 'reply_richcard_media_height_mid', 'reply_richcard_media_height_tall'], 'postback', handle_reply_richcard_media);
 ssbot.handle(['reply_carousel_media', 'reply_carousel_media_height_small', 'reply_carousel_media_height_small_mid', 'reply_carousel_media_height_small_tall', 'reply_carousel_media_height_mid', 'reply_carousel_media_height_mid_short', 'reply_carousel_media_height_mid_mid', 'reply_carousel_media_height_mid_tall'], 'postback', handle_reply_carousel_media);
 ssbot.handle(['reply_richcard_wrap', 'reply_richcard_wrap_title', 'reply_richcard_wrap_desc', 'reply_richcard_wrap_title_desc'], 'postback', handle_reply_richcard_wrap);
+ssbot.handle(['reply_carousel_display', 'reply_carousel_display_align', 'reply_carousel_display_number'], 'postback', handle_reply_carousel_display);
 
 var onResponse = function (err, res, body) {
   if (err) {

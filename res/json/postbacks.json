@@ -124,5 +124,8 @@
     "test_carousel_media_height_mid": "reply_carousel_media_height_mid",    
     "test_carousel_media_height_mid_short": "reply_carousel_media_height_mid_short",
     "test_carousel_media_height_mid_mid": "reply_carousel_media_height_mid_mid",
-    "test_carousel_media_height_mid_tall": "reply_carousel_media_height_mid_tallTall"
+    "test_carousel_media_height_mid_tall": "reply_carousel_media_height_mid_tallTall",
+    "test_carousel_display": "reply_carousel_display",
+    "test_carousel_display_align": "reply_carousel_display_align",
+    "test_carousel_display_number": "reply_carousel_display_number"
 }

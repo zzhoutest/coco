@@ -70,8 +70,8 @@
     "test_richcard_orientation_left": "Left",
     "test_richcard_orientation_right": "Right",
     "test_richcard_orientation_vertical": "Vertical",
-    "richcard_orientation": "A standalone card can choose to have its media file in landscape or portrait mode. For landscape mode,  its media file on the right side (this is flipped to the left side for right-to-left languages) or left side. \n\u2666The width of a standalone card will always be the same in both portrait and landscape mode for a given device. \r\n\u26D4Please report the issue if you see any of these is not supported correctly.",
-    "richcard_orientation_issue": "\u26D4Please report the issue if you see the orientation does not match your selection.",
+    "richcard_orientation": "A standalone card can choose to have its media file in landscape or portrait mode. For landscape mode,  its media file on the right side (this is flipped to the left side for right-to-left languages) or left side. \r\n\u2666The width of a standalone card will always be the same in both portrait and landscape mode for a given device. For horizontal cards, the displayed media should always be HORIZONTAL_LAYOUT_MEDIA_WIDTH = 128 DP.\r\n\u26D4Please report the issue if you see any of these is not supported correctly or \u26D4the displayed media width is not HORIZONTAL_LAYOUT_MEDIA_WIDTH = 128 DP.",
+    "richcard_orientation_issue": "\u26D4Please report the issue if you see the orientation does not match your selection or \u26D4the displayed media width is not 128 DP.",
     "test_richcard_content": "Contents",
     "test_richcard_content_title": "Title only",
     "test_richcard_content_description": "Description only",
@@ -207,5 +207,10 @@
     "test_carousel_media_height_mid_issue": "For a MEDIUM_WIDTH carousel, the developer can choose one of 3 heights for the media:\r\n\u2666 SHORT_HEIGHT = 112 DP. \r\n\u2666MEDIUM_HEIGHT = 168 DP. \r\n\u2666TALL_HEIGHT = 264 DP.\r\n\u26D4Please report the issue if the media height does not meet the specification.",
     "test_carousel_media_height_mid_short": "Short",
     "test_carousel_media_height_mid_mid": "Medium",
-    "test_carousel_media_height_mid_tall": "Tall"
+    "test_carousel_media_height_mid_tall": "Tall",
+    "test_carousel_display": "Alignment & Number",
+    "test_carousel_display_align": "Alignment",
+    "test_carousel_display_align_issue": "Within a carousel, the fields within all cards must be vertically aligned.\r\n\u2666All media files within the cards must have the same height.\r\n\u2666All title fields within the cards must have the same height, which is the height of the largest title text field. Title fields with fewer lines are padded with whitespace below the text to match the height of the largest title field.\r\n\u2666Description fields and suggested actions follow the same logic as title fields for height matching. \r\n\u26D4Please report the issue if any of these are not aligned.",
+    "test_carousel_display_number": "Number",
+    "test_carousel_display_number_issue": "If more than 10 cards are sent within the same message, the client can either ignore the additional cards or it can choose to load them on an asynchronous basis, e.g. when the user begins scrolling.\r\n\u26D4Please report the issue if you see more than 10 cards in the carousel."
 }
