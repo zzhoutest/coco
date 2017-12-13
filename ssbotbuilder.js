@@ -562,9 +562,7 @@ ssBotBuilder.prototype.CARD_WIDTH_MEDIUM_WIDTH = "MEDIUM_WIDTH";
 ssBotBuilder.prototype.newGeneralCarouselContent = function() {
   var i, content = [];
   var len = arguments.length;
-  if (len > 10) {
-    len = 10;
-  }
+  
   for (i = 0; i < len; i++) {
     content.push(arguments[i]);
   }
