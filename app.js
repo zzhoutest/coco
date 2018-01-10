@@ -42,6 +42,8 @@ var onWebhookMessage = function (message) {
   } else if (message.event == "response") {
     if (message.RCSMessage.sharedData) {
       handle_response_device_specifics(message);
+    } else if (message.RCSMessage.suggestedResponse.response.action) {
+      log.debug("Don't reply for suggested action response");
     } else {
       handle_reply_start_over(message);
     }
@@ -72,7 +74,7 @@ var handle_reply_start_over = function (message) {
   ssbot.read(message.RCSMessage.msgId, onResponse);
   ssbot.typing(message.messageContact, "active", onResponse);
 
-  var reply = ssbot.newTextMessage(simpletext.default);
+  var reply = ssbot.newTextMessage(simpletext.default + message.RCSMessage.textMessage + "\r\n\n " + simpletext.what_to_test);
   var r1 = ssbot.newReply(simpletext.test_10776, postbacks.test_10776);
   var r2 = ssbot.newReply(simpletext.test_advanced, postbacks.test_advanced);
   var suggestions = ssbot.newSuggestions(r1, r2);
@@ -1233,7 +1235,7 @@ var handle_reply_carousel_layout = function(message) {
     ssbot.reply(message, reply, onResponse);  
 
     content = ssbot.newGeneralCarouselContent(c5, c5, c5);    
-    reply = ssbot.newGeneralCarousel(l1, content);
+    reply = ssbot.newGeneralCarousel(l2, content);
 
     suggestions = ssbot.newSuggestions(r6, r7, r8, r9, r1, r0);
     reply.RCSMessage.suggestedChipList = ssbot.newSuggestedChipList(suggestions);

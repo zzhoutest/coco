@@ -590,6 +590,18 @@ var configureServiceRoute = function(webserver) {
   // Handle CORS
   webserver.options(configuration.serverconfig.webhook, cors());
 
+  // Handle webhook validation request from portal
+  webserver.get(configuration.serverconfig.webhook, cors(), function(req, res) {
+    log.debug('Test webhook');
+    var verificationToken = req.get('Authorization');
+    if (!verificationToken || verificationToken != configuration.verificationtoken) {
+      log.debug("verification token is not valid");
+      res.status(401).send("unauthorized");
+      return;
+    }
+    res.send('ok');
+  });
+
   // logic to handle webhook POST
   webserver.post(configuration.serverconfig.webhook, cors(), function(req, res) {
     var obj = req.body;

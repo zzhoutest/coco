@@ -1,6 +1,6 @@
 {
     "hello": "Hello World! I am CoCo!\uD83D\uDC36",
-    "default": "\uD83D\uDC36This is CoCo. I am sorry I don't understand what you are saying. Please tell me what you want to test.",
+    "default": "\uD83D\uDC36This is CoCo. I am sorry I don't understand what you are just saying: ",    
     "start_over": "Start Over",
     "test_10776": "10776",
     "test_advanced": "Advanced Functions",
